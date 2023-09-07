@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+  dev-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: '${DEV_POSTGRES_DB:-fm}'
+      POSTGRES_USER: '${DEV_POSTGRES_USER:-fm}'
+      POSTGRES_PASSWORD: '${DEV_POSTGRES_PASSWORD:-fm}'
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DEV_POSTGRES_DB:-fm}", "-U", "${DEV_POSTGRES_USER:-fm}" ]
+      retries: 3
+      timeout: 5s
+
+volumes:
+  dev-db-data:
