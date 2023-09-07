@@ -2,11 +2,27 @@ package xyz.mlhmz.financemanager.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
+import xyz.mlhmz.financemanager.dtos.MutateCategoryDto;
+import xyz.mlhmz.financemanager.dtos.QueryCategoryDto;
 import xyz.mlhmz.financemanager.entities.Category;
 
+import java.util.List;
+
 @Mapper(
-        componentModel = "spring"
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface CategoryMapper {
+    Category mapMutateCategoryDtoToCategory(MutateCategoryDto mutateCategoryDto);
+
+    QueryCategoryDto mapCategoryToQueryCategoryDto(Category category);
+
+    default List<QueryCategoryDto> mapCategoryListToQueryCategoryList(List<Category> categories) {
+        return categories.stream()
+                .map(this::mapCategoryToQueryCategoryDto)
+                .toList();
+    }
+
     void updateCategory(@MappingTarget Category existingCategory, Category newCategory);
 }
