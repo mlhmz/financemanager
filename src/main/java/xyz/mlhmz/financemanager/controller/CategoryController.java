@@ -1,4 +1,4 @@
-package xyz.mlhmz.financemanager.controllers;
+package xyz.mlhmz.financemanager.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
