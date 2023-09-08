@@ -11,11 +11,54 @@ services:
     volumes:
       - dev-db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${DEV_POSTGRES_DB:-fm}", "-U", "${DEV_POSTGRES_USER:-fm}" ]
       retries: 3
       timeout: 5s
+  kc-db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: '${KC_POSTGRES_PASSWORD:-fm}'
+      POSTGRES_USER: '${KC_POSTGRES_USER:-fm}'
+      POSTGRES_DB: '${KC_POSTGRES_DB:-fm}'
+    volumes:
+      - kc-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${KC_POSTGRES_DB:-fm}", "-U", "${KC_POSTGRES_USER:-fm}" ]
+      retries: 3
+      timeout: 5s
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.0.1
+    restart: unless-stopped
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KC_DB: postgres
+      KC_DB_URL: 'jdbc:postgresql://kc-db:5432/${KC_POSTGRES_DB:-fm}?characterEncoding=UTF-8'
+      KC_DB_USERNAME: '${KC_POSTGRES_USER:-fm}'
+      KC_DB_PASSWORD: '${KC_POSTGRES_USER:-fm}'
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      PROXY_ADDRESS_FORWARDING: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: info
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health/ready" ]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    links:
+      - kc-db
+    depends_on:
+      - kc-db
+    ports:
+      - '8080:8080'
+      - '8443:8443'
+    command: start-dev
 
 volumes:
   dev-db-data:
+  kc-db-data:

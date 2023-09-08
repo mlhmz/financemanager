@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/fm
+    url: jdbc:postgresql://localhost:5433/fm
     username: fm
     password: fm
 
@@ -8,5 +8,14 @@ spring:
     hibernate:
       ddl-auto: create-drop
 
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/fm
+          jwk-set-uri: http://localhost:8080/realms/fm/protocol/openid-connect/certs
+
 server:
   port: 8085
+
