@@ -11,17 +11,17 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class OAuthUserServiceImpl implements OAuthUserService {
-    private final OAuthUserRepository OAuthUserRepository;
+    private final OAuthUserRepository oAuthUserRepository;
 
     @Override
     public OAuthUser createUser(OAuthUser oAuthUser) {
-        return this.OAuthUserRepository.save(oAuthUser);
+        return this.oAuthUserRepository.save(oAuthUser);
     }
 
     @Override
     public OAuthUser findUserByJwt(Jwt jwt) {
         UUID id = extractUuidFromJwt(jwt);
-        return this.OAuthUserRepository.findById(id)
+        return this.oAuthUserRepository.findById(id)
                 .orElseGet(() -> this.createUser(OAuthUser.builder().oauthUserId(id).build()));
     }
 
