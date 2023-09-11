@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserServiceImpl implements OAuthUserService {
+public class OAuthUserServiceImpl implements OAuthUserService {
     private final UserRepository userRepository;
 
     @Override
