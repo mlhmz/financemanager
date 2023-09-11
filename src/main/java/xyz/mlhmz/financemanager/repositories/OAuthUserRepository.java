@@ -5,5 +5,5 @@ import xyz.mlhmz.financemanager.entities.OAuthUser;
 
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<OAuthUser, UUID> {
+public interface OAuthUserRepository extends JpaRepository<OAuthUser, UUID> {
 }
