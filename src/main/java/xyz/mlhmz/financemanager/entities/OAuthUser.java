@@ -16,10 +16,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-public class User {
+public class OAuthUser {
     @Id
     @NotNull
-    private UUID keycloakUserId;
+    private UUID oauthUserId;
 
     @OneToMany
     @JoinTable

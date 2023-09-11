@@ -33,5 +33,5 @@ public class Sheet {
     private List<Transaction> transactions;
 
     @ManyToOne(optional = false)
-    private User user;
+    private OAuthUser user;
 }

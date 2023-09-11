@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import xyz.mlhmz.financemanager.entities.Category;
-import xyz.mlhmz.financemanager.entities.User;
+import xyz.mlhmz.financemanager.entities.OAuthUser;
 import xyz.mlhmz.financemanager.exceptions.CategoryNotFoundException;
 import xyz.mlhmz.financemanager.mappers.CategoryMapper;
 import xyz.mlhmz.financemanager.repositories.CategoryRepository;
@@ -19,25 +19,25 @@ import java.util.UUID;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final UserService userService;
+    private final OAuthUserService oAuthUserService;
 
     @Override
     public Category createCategory(Category category, Jwt jwt) {
-        User user = userService.findUserByJwt(jwt);
-        category.setUser(user);
+        OAuthUser oauthUser = this.oAuthUserService.findUserByJwt(jwt);
+        category.setUser(oauthUser);
         return this.categoryRepository.save(category);
     }
 
     @Override
     public List<Category> findAllCategoriesByJwt(Jwt jwt) {
-        return this.categoryRepository.findAllByUser(
-                this.userService.findUserByJwt(jwt)
+        return this.categoryRepository.findCategoriesByUser(
+                this.oAuthUserService.findUserByJwt(jwt)
         );
     }
 
     @Override
     public Category findCategoryByUUID(UUID uuid, Jwt jwt) {
-        return this.categoryRepository.findByUuidAndUser(uuid, this.userService.findUserByJwt(jwt))
+        return this.categoryRepository.findByUuidAndUser(uuid, this.oAuthUserService.findUserByJwt(jwt))
                 .orElseThrow(CategoryNotFoundException::new);
     }
 

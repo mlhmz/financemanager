@@ -40,5 +40,5 @@ public class Transaction {
     private Category category;
 
     @ManyToOne(optional = false)
-    private User user;
+    private OAuthUser user;
 }
