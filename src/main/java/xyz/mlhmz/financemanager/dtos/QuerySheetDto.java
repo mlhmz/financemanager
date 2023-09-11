@@ -1,12 +1,13 @@
 package xyz.mlhmz.financemanager.dtos;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
-public record QueryCategoryDto (
+public record QuerySheetDto (
         UUID uuid,
         String title,
-        String description,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        List<QueryTransactionDto> transactions
 ) { }

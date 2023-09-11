@@ -3,10 +3,12 @@ package xyz.mlhmz.financemanager.dtos;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record QueryCategoryDto (
+public record QueryTransactionDto (
         UUID uuid,
         String title,
         String description,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) { }
+        Double amount,
+        LocalDateTime timestamp,
+        QueryCategoryDto category
+) {
+}

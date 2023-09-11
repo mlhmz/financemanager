@@ -1,8 +1,6 @@
 package xyz.mlhmz.financemanager.mappers;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import xyz.mlhmz.financemanager.dtos.MutateCategoryDto;
 import xyz.mlhmz.financemanager.dtos.QueryCategoryDto;
 import xyz.mlhmz.financemanager.entities.Category;
@@ -24,5 +22,8 @@ public interface CategoryMapper {
                 .toList();
     }
 
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "title")
+    @Mapping(target = "description")
     void updateCategory(@MappingTarget Category existingCategory, Category newCategory);
 }

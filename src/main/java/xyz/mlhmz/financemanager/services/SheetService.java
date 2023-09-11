@@ -18,7 +18,7 @@ public interface SheetService {
 
     void deleteSheetByUUID(UUID uuid, Jwt jwt);
 
-    Sheet addTransactionToSheet(Sheet sheet, Transaction transaction, Jwt jwt);
+    Sheet addTransactionToSheet(UUID uuid, Transaction transaction, Jwt jwt);
 
-    Sheet removeTransactionFromSheet(Sheet sheet, Transaction transaction, Jwt jwt);
+    Sheet removeTransactionFromSheet(UUID uuid, Transaction transaction, Jwt jwt);
 }
