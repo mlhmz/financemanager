@@ -1,9 +1,6 @@
 package xyz.mlhmz.financemanager.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,4 +34,7 @@ public class Category {
     @OneToMany
     @JoinTable
     private List<Transaction> transactions;
+
+    @ManyToOne(optional = false)
+    private User user;
 }

@@ -1,9 +1,6 @@
 package xyz.mlhmz.financemanager.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -34,4 +31,7 @@ public class Sheet {
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Transaction> transactions;
+
+    @ManyToOne(optional = false)
+    private User user;
 }

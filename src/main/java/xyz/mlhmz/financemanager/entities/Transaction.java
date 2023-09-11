@@ -38,4 +38,7 @@ public class Transaction {
 
     @ManyToOne
     private Category category;
+
+    @ManyToOne(optional = false)
+    private User user;
 }
