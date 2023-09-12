@@ -44,7 +44,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{uuid}")
-    public QueryCategoryDto updateCategory(@PathVariable UUID uuid, MutateCategoryDto mutateCategoryDto,
+    public QueryCategoryDto updateCategory(@PathVariable UUID uuid, @RequestBody MutateCategoryDto mutateCategoryDto,
                                            @AuthenticationPrincipal Jwt jwt) {
         Category newCategory = this.categoryMapper.mapMutateCategoryDtoToCategory(mutateCategoryDto);
         Category category = this.categoryService.updateCategory(uuid, newCategory, jwt);

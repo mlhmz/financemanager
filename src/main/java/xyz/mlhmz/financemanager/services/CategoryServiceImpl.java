@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Category updateCategory(UUID uuid, Category newCategory, Jwt jwt) {
         Category existingCategory = this.findCategoryByUUID(uuid, jwt);
         this.categoryMapper.updateCategory(existingCategory, newCategory);
-        return existingCategory;
+        return this.categoryRepository.save(existingCategory);
     }
 
     @Override
