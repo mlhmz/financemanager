@@ -2,7 +2,6 @@ package xyz.mlhmz.financemanager.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,15 +20,12 @@ public class OAuthUser {
     @NotNull
     private UUID oauthUserId;
 
-    @OneToMany
-    @JoinTable
+    @OneToMany(mappedBy = "user")
     private List<Category> categories;
 
-    @OneToMany
-    @JoinTable
+    @OneToMany(mappedBy = "user")
     private List<Sheet> sheets;
 
-    @OneToMany
-    @JoinTable
+    @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
 }

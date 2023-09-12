@@ -1,8 +1,6 @@
 package xyz.mlhmz.financemanager.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -37,6 +35,8 @@ public class Transaction {
     private LocalDateTime updatedAt;
 
     @ManyToOne
+    @JoinTable(name = "category_transactions", joinColumns = {@JoinColumn(name = "transactions_uuid", referencedColumnName = "uuid")},
+            inverseJoinColumns={@JoinColumn(name="category_uuid", referencedColumnName="uuid")})
     private Category category;
 
     @ManyToOne(optional = false)

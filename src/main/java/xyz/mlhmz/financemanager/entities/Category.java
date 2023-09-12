@@ -31,8 +31,7 @@ public class Category {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany
-    @JoinTable
+    @OneToMany(mappedBy = "category")
     private List<Transaction> transactions;
 
     @ManyToOne(optional = false)
