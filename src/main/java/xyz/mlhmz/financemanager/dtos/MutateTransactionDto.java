@@ -8,6 +8,7 @@ public record MutateTransactionDto(
         String description,
         Double amount,
         LocalDateTime timestamp,
-        UUID sheetId
+        UUID sheetId,
+        UUID categoryId
 ) {
 }
