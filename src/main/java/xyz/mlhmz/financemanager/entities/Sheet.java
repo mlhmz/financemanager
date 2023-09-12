@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class Sheet {
     private LocalDateTime updatedAt;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();
 
     @ManyToOne(optional = false)
     private OAuthUser user;
