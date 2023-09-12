@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TransactionService {
-    Transaction createTransaction(Transaction transaction, Jwt jwt);
+    Transaction createTransaction(Transaction transaction, UUID sheet, UUID categoryId, Jwt jwt);
 
     List<Transaction> findAllTransactions(Transaction transaction, Jwt jwt);
 
@@ -18,7 +18,11 @@ public interface TransactionService {
 
     Transaction findTransactionByUUID(UUID uuid, Jwt jwt);
 
+    Transaction moveTransactionToSheet(UUID transactionId, UUID oldSheetId, UUID newSheetId, Jwt jwt);
+
     Transaction updateTransaction(UUID uuid, Transaction updateTransaction, Jwt jwt);
+
+    Transaction updateTransactionCategory(UUID transactionId, UUID categoryId, Jwt jwt);
 
     void deleteTransactionByUuid(UUID uuid, Jwt jwt);
 }
