@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import xyz.mlhmz.financemanager.entities.OAuthUser;
 import xyz.mlhmz.financemanager.entities.Transaction;
+import xyz.mlhmz.financemanager.mappers.TransactionMapperImpl;
 import xyz.mlhmz.financemanager.repositories.TransactionRepository;
 
 import java.util.UUID;
@@ -15,7 +16,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {
-        TransactionServiceImpl.class
+        TransactionServiceImpl.class,
+        TransactionMapperImpl.class
 })
 class TransactionServiceImplTest {
     @Autowired
@@ -41,7 +43,7 @@ class TransactionServiceImplTest {
     void createTransaction_GetsAddedToSheet() {
         Transaction transaction = Transaction.builder().build();
         UUID sheetId = UUID.randomUUID();
-        transactionService.createTransaction(transaction, sheetId, , null, );
+        transactionService.createTransaction(transaction, sheetId, null, null);
         verify(sheetService, times(1)).addTransactionToSheet(sheetId, transaction, null);
     }
 }
