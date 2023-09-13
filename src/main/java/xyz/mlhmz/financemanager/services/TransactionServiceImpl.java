@@ -83,6 +83,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void deleteTransactionByUuid(UUID uuid, Jwt jwt) {
         Transaction transaction = this.findTransactionByUUID(uuid, jwt);
+        this.sheetService.removeTransactionFromSheet(transaction.getSheet().getUuid(), transaction, jwt);
         this.transactionRepository.delete(transaction);
     }
 

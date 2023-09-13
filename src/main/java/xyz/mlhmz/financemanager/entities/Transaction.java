@@ -39,6 +39,11 @@ public class Transaction {
             inverseJoinColumns={@JoinColumn(name="category_uuid", referencedColumnName="uuid")})
     private Category category;
 
+    @ManyToOne
+    @JoinTable(name = "sheet_transactions", joinColumns = {@JoinColumn(name = "transactions_uuid", referencedColumnName = "uuid")},
+            inverseJoinColumns={@JoinColumn(name="sheet_uuid", referencedColumnName="uuid")})
+    private Sheet sheet;
+
     @ManyToOne(optional = false)
     private OAuthUser user;
 }

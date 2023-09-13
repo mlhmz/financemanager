@@ -63,7 +63,7 @@ public class SheetServiceImpl implements SheetService {
     @Transactional
     public Sheet removeTransactionFromSheet(UUID uuid, Transaction transaction, Jwt jwt) {
         Sheet sheet = this.findSheetByUUID(uuid, jwt);
-        boolean success = sheet.getTransactions().remove(transaction);
+        boolean success = sheet.getTransactions().removeIf(entry -> entry.getUuid().equals(transaction.getUuid()));
         if (!success) {
             throw new SheetNotContainingTransactionException();
         }
