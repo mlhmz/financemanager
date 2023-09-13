@@ -1,12 +1,9 @@
 package xyz.mlhmz.financemanager.services;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import xyz.mlhmz.financemanager.entities.Sheet;
-import xyz.mlhmz.financemanager.entities.Transaction;
-import xyz.mlhmz.financemanager.exceptions.SheetNotContainingTransactionException;
 import xyz.mlhmz.financemanager.exceptions.SheetNotFoundException;
 import xyz.mlhmz.financemanager.mappers.SheetMapper;
 import xyz.mlhmz.financemanager.repositories.SheetRepository;
@@ -49,24 +46,5 @@ public class SheetServiceImpl implements SheetService {
     public void deleteSheetByUUID(UUID uuid, Jwt jwt) {
         Sheet sheet = this.findSheetByUUID(uuid, jwt);
         this.sheetRepository.delete(sheet);
-    }
-
-    @Override
-    @Transactional
-    public Sheet addTransactionToSheet(UUID uuid, Transaction transaction, Jwt jwt) {
-        Sheet sheet = this.findSheetByUUID(uuid, jwt);
-        sheet.getTransactions().add(transaction);
-        return this.sheetRepository.save(sheet);
-    }
-
-    @Override
-    @Transactional
-    public Sheet removeTransactionFromSheet(UUID uuid, Transaction transaction, Jwt jwt) {
-        Sheet sheet = this.findSheetByUUID(uuid, jwt);
-        boolean success = sheet.getTransactions().removeIf(entry -> entry.getUuid().equals(transaction.getUuid()));
-        if (!success) {
-            throw new SheetNotContainingTransactionException();
-        }
-        return this.sheetRepository.save(sheet);
     }
 }
