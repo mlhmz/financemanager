@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +33,8 @@ public class Category {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "category")
-    private List<Transaction> transactions;
+    @Builder.Default
+    private List<Transaction> transactions = new ArrayList<>();
 
     @ManyToOne(optional = false)
     private OAuthUser user;
