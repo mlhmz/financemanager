@@ -151,6 +151,7 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
     }
 
     @Test
+    @DisplayName("moveTransactionToSheet() moves Transaction to a new sheet")
     void moveTransactionToSheet() {
         Transaction transaction = Transaction.builder()
                 .title("Test Transaction")
@@ -209,6 +210,30 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
         // Check that updatable fields also got updated
         assertThat(updateResult.getTitle()).isEqualTo(newTitle);
         assertThat(updateResult.getDescription()).isEqualTo(newDescription);
+    }
+
+    @Test
+    @DisplayName("updateTransactionCategory() sets new Category")
+    void updateTransactionCategory() {
+        Transaction transaction = Transaction.builder()
+                .title("Test Transaction")
+                .description("Test Description")
+                .build();
+
+        Transaction savedTransaction = this.transactionService.createTransaction(transaction, defaultSheet.getUuid(), defaultCategory.getUuid(), jwt);
+
+        Category category = Category.builder()
+                .title("New Category")
+                .description("New Category")
+                .build();
+
+        Category savedCategory = this.categoryService.createCategory(category, jwt);
+
+        Transaction result = transactionService.updateTransactionCategory(
+                savedTransaction.getUuid(), savedCategory.getUuid(), jwt
+        );
+
+        assertThat(result.getCategory().getUuid()).isEqualTo(savedCategory.getUuid());
     }
 
     @Test
