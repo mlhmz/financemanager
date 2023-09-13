@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import xyz.mlhmz.financemanager.entities.OAuthUser;
 import xyz.mlhmz.financemanager.entities.Sheet;
 import xyz.mlhmz.financemanager.entities.Transaction;
+import xyz.mlhmz.financemanager.exceptions.SheetNotContainingTransactionException;
 import xyz.mlhmz.financemanager.mappers.SheetMapperImpl;
 import xyz.mlhmz.financemanager.repositories.SheetRepository;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -91,5 +93,9 @@ class SheetServiceImplTest {
                 .hasSize(2)
                 .contains(firstDummyTransaction, secondDummyTransaction)
                 .doesNotContain(transactionToRemove);
+
+        Transaction transaction = Transaction.builder().build();
+        assertThatThrownBy(() -> sheetService.removeTransactionFromSheet(null, transaction, null))
+                .isInstanceOf(SheetNotContainingTransactionException.class);
     }
 }

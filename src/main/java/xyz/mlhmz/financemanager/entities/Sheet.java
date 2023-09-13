@@ -31,6 +31,7 @@ public class Sheet {
     private LocalDateTime updatedAt;
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @Builder.Default
     private List<Transaction> transactions = new ArrayList<>();
 
     @ManyToOne(optional = false)
