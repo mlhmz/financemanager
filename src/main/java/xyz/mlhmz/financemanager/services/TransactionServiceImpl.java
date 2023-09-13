@@ -57,9 +57,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction moveTransactionToSheet(UUID transactionId, UUID oldSheetId, UUID newSheetId, Jwt jwt) {
+    public Transaction moveTransactionToSheet(UUID transactionId, UUID sheetId, Jwt jwt) {
         Transaction transaction = this.findTransactionByUUID(transactionId, jwt);
-        transaction.setSheet(this.sheetService.findSheetByUUID(newSheetId, jwt));
+        transaction.setSheet(this.sheetService.findSheetByUUID(sheetId, jwt));
         return this.transactionRepository.save(transaction);
     }
 

@@ -168,7 +168,7 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
         Sheet newSheet = this.sheetService.createSheet(newSheetInput, jwt);
 
         Transaction movedTransaction = this.transactionService.moveTransactionToSheet(
-                savedTransaction.getUuid(), savedTransaction.getSheet().getUuid(), newSheet.getUuid(), jwt
+                savedTransaction.getUuid(), newSheet.getUuid(), jwt
         );
 
         assertThat(movedTransaction.getSheet().getUuid()).isEqualTo(newSheet.getUuid());

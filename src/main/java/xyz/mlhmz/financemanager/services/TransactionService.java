@@ -18,7 +18,7 @@ public interface TransactionService {
 
     Transaction findTransactionByUUID(UUID uuid, Jwt jwt);
 
-    Transaction moveTransactionToSheet(UUID transactionId, UUID oldSheetId, UUID newSheetId, Jwt jwt);
+    Transaction moveTransactionToSheet(UUID transactionId, UUID sheetId, Jwt jwt);
 
     Transaction updateTransaction(UUID uuid, Transaction updateTransaction, Jwt jwt);
 
