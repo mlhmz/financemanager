@@ -12,6 +12,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(initializers = {PostgresContextContainerTest.Initializer.class})
 public abstract class PostgresContextContainerTest {
     public static final String POSTGRES_VERSION = "postgres:latest";
