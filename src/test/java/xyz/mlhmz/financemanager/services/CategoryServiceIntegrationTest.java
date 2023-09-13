@@ -1,5 +1,6 @@
 package xyz.mlhmz.financemanager.services;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,11 @@ class CategoryServiceIntegrationTest extends PostgresContextContainerTest {
     @BeforeEach
     void setUp() {
         doReturn(USER_UUID.toString()).when(jwt).getSubject();
+    }
+
+    @AfterEach
+    void tearDown() {
+        categoryRepository.deleteAll();
     }
 
     @Test
