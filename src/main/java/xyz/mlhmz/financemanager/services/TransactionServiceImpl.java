@@ -26,10 +26,9 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction createTransaction(Transaction input, UUID sheetId, UUID categoryId, Jwt jwt) {
         OAuthUser user = oAuthUserService.findUserByJwt(jwt);
         input.setUser(user);
+        input.setSheet(this.sheetService.findSheetByUUID(sheetId, jwt));
         setCategoryIntoTransactionOnCategoryIdNotNull(categoryId, jwt, input);
-        Transaction transaction = this.transactionRepository.save(input);
-        this.sheetService.addTransactionToSheet(sheetId, input, jwt);
-        return transaction;
+        return this.transactionRepository.save(input);
     }
 
     @Override
@@ -60,8 +59,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Transaction moveTransactionToSheet(UUID transactionId, UUID oldSheetId, UUID newSheetId, Jwt jwt) {
         Transaction transaction = this.findTransactionByUUID(transactionId, jwt);
-        this.sheetService.removeTransactionFromSheet(oldSheetId, transaction, jwt);
-        this.sheetService.addTransactionToSheet(newSheetId, transaction, jwt);
+        transaction.setSheet(this.sheetService.findSheetByUUID(newSheetId, jwt));
         return this.transactionRepository.save(transaction);
     }
 
@@ -83,7 +81,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void deleteTransactionByUuid(UUID uuid, Jwt jwt) {
         Transaction transaction = this.findTransactionByUUID(uuid, jwt);
-        this.sheetService.removeTransactionFromSheet(transaction.getSheet().getUuid(), transaction, jwt);
         this.transactionRepository.delete(transaction);
     }
 
