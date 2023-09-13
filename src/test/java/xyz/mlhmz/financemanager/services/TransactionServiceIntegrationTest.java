@@ -121,6 +121,34 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
     }
 
     @Test
+    @DisplayName("findTransactionByCategoryUUID() only shows Objects in Category")
+    void findTransactionByCategoryUUID() {
+        Transaction firstTransaction = Transaction.builder()
+                .title("transaction")
+                .description("description")
+                .build();
+        Transaction secondTransaction = Transaction.builder()
+                .title("transaction")
+                .description("description")
+                .build();
+        Transaction thirdTransactionWithoutCategory = Transaction.builder()
+                .title("transaction")
+                .description("description")
+                .build();
+
+        this.transactionService.createTransaction(firstTransaction, defaultSheet.getUuid(), defaultCategory.getUuid(), jwt);
+        this.transactionService.createTransaction(secondTransaction, defaultSheet.getUuid(), defaultCategory.getUuid(), jwt);
+        this.transactionService.createTransaction(thirdTransactionWithoutCategory, defaultSheet.getUuid(), null, jwt);
+
+
+        List<Transaction> transactions = this.transactionService.findTransactionsByCategoryUUID(defaultCategory.getUuid(), jwt);
+
+        assertThat(transactions)
+                .isNotNull()
+                .hasSize(2);
+    }
+
+    @Test
     @DisplayName("findTransactionById() finds created object")
     void findTransactionById() {
         String title = "transaction";
@@ -132,7 +160,7 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
 
         UUID transactionUuid = this.transactionService.createTransaction(
                 inputTransaction, defaultSheet.getUuid(), defaultCategory.getUuid(), jwt
-                ).getUuid();
+        ).getUuid();
 
         Transaction transaction = this.transactionService.findTransactionByUUID(transactionUuid, jwt);
 
