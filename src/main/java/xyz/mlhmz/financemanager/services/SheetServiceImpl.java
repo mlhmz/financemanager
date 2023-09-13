@@ -1,5 +1,6 @@
 package xyz.mlhmz.financemanager.services;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,7 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
+    @Transactional
     public Sheet addTransactionToSheet(UUID uuid, Transaction transaction, Jwt jwt) {
         Sheet sheet = this.findSheetByUUID(uuid, jwt);
         sheet.getTransactions().add(transaction);
@@ -58,6 +60,7 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
+    @Transactional
     public Sheet removeTransactionFromSheet(UUID uuid, Transaction transaction, Jwt jwt) {
         Sheet sheet = this.findSheetByUUID(uuid, jwt);
         boolean success = sheet.getTransactions().remove(transaction);
