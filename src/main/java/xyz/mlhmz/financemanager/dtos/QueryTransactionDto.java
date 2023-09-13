@@ -9,6 +9,7 @@ public record QueryTransactionDto (
         String description,
         Double amount,
         LocalDateTime timestamp,
-        QueryCategoryDto category
+        QueryCategoryDto category,
+        QueryTransactionSheetDto sheet
 ) {
 }

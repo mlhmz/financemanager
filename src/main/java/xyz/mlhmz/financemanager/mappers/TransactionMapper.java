@@ -10,6 +10,8 @@ import xyz.mlhmz.financemanager.entities.Transaction;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface TransactionMapper {
+    @Mapping(source = "sheet.uuid", target = "sheet.uuid")
+    @Mapping(source = "sheet.title", target = "sheet.title")
     QueryTransactionDto mapTransactionToQueryTransactionDto(Transaction transaction);
 
     Transaction mapMutateTransactionDtoToTransaction(MutateTransactionDto mutateTransactionDto);
