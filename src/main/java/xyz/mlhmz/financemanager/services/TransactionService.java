@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface TransactionService {
     Transaction createTransaction(Transaction transaction, UUID sheet, UUID categoryId, Jwt jwt);
 
-    List<Transaction> findAllTransactions(Transaction transaction, Jwt jwt);
+    List<Transaction> findAllTransactions(Jwt jwt);
 
     List<Transaction> findTransactionsByCategoryUUID(UUID uuid, Jwt jwt);
 

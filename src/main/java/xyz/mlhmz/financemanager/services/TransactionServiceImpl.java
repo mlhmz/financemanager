@@ -33,7 +33,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> findAllTransactions(Transaction transaction, Jwt jwt) {
+    public List<Transaction> findAllTransactions(Jwt jwt) {
         OAuthUser user = oAuthUserService.findUserByJwt(jwt);
         return this.transactionRepository.findTransactionsByUser(user);
     }
