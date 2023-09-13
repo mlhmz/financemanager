@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.oauth2.jwt.Jwt;
 import xyz.mlhmz.financemanager.PostgresContextContainerTest;
 import xyz.mlhmz.financemanager.entities.Category;
@@ -19,7 +18,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 class CategoryServiceIntegrationTest extends PostgresContextContainerTest {
@@ -76,9 +74,9 @@ class CategoryServiceIntegrationTest extends PostgresContextContainerTest {
                         .description("description")
                         .build()
         );
-        inputCategories.forEach(category -> categoryService.createCategory(category, jwt));
+        inputCategories.forEach(category -> this.categoryService.createCategory(category, jwt));
 
-        List<Category> categories = categoryService.findAllCategoriesByJwt(jwt);
+        List<Category> categories = this.categoryService.findAllCategoriesByJwt(jwt);
 
         assertThat(categories)
                 .isNotNull()
@@ -98,9 +96,9 @@ class CategoryServiceIntegrationTest extends PostgresContextContainerTest {
                 .description(description)
                 .build();
 
-        UUID categoryUuid = categoryService.createCategory(inputCategory, jwt).getUuid();
+        UUID categoryUuid = this.categoryService.createCategory(inputCategory, jwt).getUuid();
 
-        Category category = categoryService.findCategoryByUUID(categoryUuid, jwt);
+        Category category = this.categoryService.findCategoryByUUID(categoryUuid, jwt);
 
         assertThat(category.getUuid()).isEqualTo(categoryUuid);
         assertThat(category.getTitle()).isEqualTo(title);
@@ -112,7 +110,7 @@ class CategoryServiceIntegrationTest extends PostgresContextContainerTest {
     @DisplayName("findCategoryById() with non-existing UUID result in CategoryNotFoundException")
     void getCategoryById_ThrowsCategoryNotFoundExceptionOnNonExistingCategory() {
         UUID nonExistingCategoryUuid = UUID.randomUUID();
-        assertThatThrownBy(() -> categoryService.findCategoryByUUID(nonExistingCategoryUuid, jwt))
+        assertThatThrownBy(() -> this.categoryService.findCategoryByUUID(nonExistingCategoryUuid, jwt))
                 .isInstanceOf(CategoryNotFoundException.class);
     }
 
@@ -149,5 +147,22 @@ class CategoryServiceIntegrationTest extends PostgresContextContainerTest {
         // Check that updatable fields also got updated
         assertThat(updateResult.getTitle()).isEqualTo(newTitle);
         assertThat(updateResult.getDescription()).isEqualTo(newDescription);
+    }
+
+    @Test
+    @DisplayName("Delete category succeeds")
+    void deleteCategory() {
+        Category category = Category.builder()
+                .title("Test")
+                .description("Test")
+                .build();
+
+        UUID categoryUuid = this.categoryService.createCategory(category, jwt).getUuid();
+
+        assertThat(this.categoryRepository.findAll()).hasSize(1);
+
+        this.categoryService.deleteCategoryByUuid(categoryUuid, jwt);
+
+        assertThat(this.categoryRepository.findAll()).isEmpty();
     }
 }
