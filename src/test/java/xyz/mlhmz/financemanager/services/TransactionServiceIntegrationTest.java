@@ -87,6 +87,7 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
         assertThat(savedTransaction.getTitle()).isEqualTo(title);
         assertThat(savedTransaction.getDescription()).isEqualTo(description);
         assertThat(savedTransaction.getCategory().getUuid()).isEqualTo(defaultCategory.getUuid());
+        assertThat(savedTransaction.getSheet().getUuid()).isEqualTo(defaultSheet.getUuid());
         assertThat(savedTransaction.getUser().getOauthUserId()).isEqualTo(USER_UUID);
     }
 
@@ -147,6 +148,30 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
         UUID nonExistingTransactionUuid = UUID.randomUUID();
         assertThatThrownBy(() -> this.transactionService.findTransactionByUUID(nonExistingTransactionUuid, jwt))
                 .isInstanceOf(TransactionNotFoundException.class);
+    }
+
+    @Test
+    void moveTransactionToSheet() {
+        Transaction transaction = Transaction.builder()
+                .title("Test Transaction")
+                .description("Test Description")
+                .build();
+
+        Transaction savedTransaction = this.transactionService.createTransaction(
+                transaction,
+                defaultSheet.getUuid(),
+                defaultCategory.getUuid(),
+                jwt
+        );
+
+        Sheet newSheetInput = Sheet.builder().title("New Sheet").build();
+        Sheet newSheet = this.sheetService.createSheet(newSheetInput, jwt);
+
+        Transaction movedTransaction = this.transactionService.moveTransactionToSheet(
+                savedTransaction.getUuid(), savedTransaction.getSheet().getUuid(), newSheet.getUuid(), jwt
+        );
+
+        assertThat(movedTransaction.getSheet().getUuid()).isEqualTo(newSheet.getUuid());
     }
 
     @Test
