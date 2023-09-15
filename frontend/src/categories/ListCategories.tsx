@@ -7,7 +7,7 @@ import { toast } from "sonner";
 async function fetchCategories(token: string | undefined) {
   const response = await fetch("/api/v1/categories", {
     headers: {
-      Authorization: `Beare ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
 

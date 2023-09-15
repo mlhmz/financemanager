@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocalStorage } from 'react-use';
 
 export const ThemeSelect = () => {
-  const [value, setValue] = useLocalStorage('theme', 'emerald');
+  const [value, setValue] = useLocalStorage('theme', 'light');
 
   useEffect(() => {
     document.documentElement.dataset.theme = value;
@@ -14,8 +14,8 @@ export const ThemeSelect = () => {
         title="Toggle theme"
         type="checkbox"
         className="toggle"
-        checked={value === 'emerald'}
-        onChange={() => setValue(value === 'emerald' ? 'forest' : 'emerald')}
+        checked={value === 'light'}
+        onChange={() => setValue(value === 'light' ? 'dark' : 'light')}
       />
     </div>
   );
