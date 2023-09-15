@@ -1,3 +1,4 @@
+import { AuthButton } from "./AuthButton";
 import { ThemeSelect } from "./ThemeSelect";
 
 export const Navbar = () => {
@@ -8,6 +9,9 @@ export const Navbar = () => {
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
+          <li>
+            <AuthButton />
+          </li>
           <li>
             <ThemeSelect />
           </li>
