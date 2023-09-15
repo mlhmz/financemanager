@@ -1,14 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Welcome } from "./views/Welcome";
+import { Welcome } from "./greet/Greet";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Welcome />,
-  },
-  {
-    path: "/app",
-    element: "Test",
   },
 ]);
 

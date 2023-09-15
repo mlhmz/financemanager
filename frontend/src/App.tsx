@@ -1,15 +1,12 @@
-import { Navbar } from "./components/Navbar"
+import { Navbar } from "./components/Navbar";
 
 function App({ children }: { children: React.ReactNode }) {
-
   return (
     <div>
       <Navbar />
-      <div>
-        { children }
-      </div>
+      <div className="pt-32">{children}</div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
