@@ -4,7 +4,7 @@ export const AuthButton = () => {
   const auth = useAuth();
 
   if (auth.isLoading) {
-    return <a>Loading...</a>;
+    return <a><span className="loading loading-spinner loading-xs"></span></a>;
   } else if (auth.isAuthenticated) {
     return (
       <a
