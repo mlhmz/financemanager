@@ -1,9 +1,10 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { Icons } from "../components/Icons";
 import { Category } from "./Category";
+import { toast } from "sonner";
 
 async function fetchCategories(token: string | undefined) {
   const response = await fetch("/api/v1/categories", {
@@ -24,11 +25,36 @@ async function fetchCategories(token: string | undefined) {
   return data as Category[];
 }
 
+async function deleteCategory(
+  uuid?: string,
+  token?: string
+) {
+  const response = await fetch(`/api/v1/categories/${uuid}`, {
+    headers: {
+      Authorization: `Bearer ${token ?? ""}`,
+      "Content-Type": "application/json",
+    },
+    method: "DELETE",
+  });
+
+  if (response.status === 401) {
+    throw new Error("Invalid session, please reload the window.");
+  } else if (!response.ok) {
+    const error = await response.json();
+    if (error.message) throw new Error(error.message);
+    throw new Error("Problem fetching data");
+  }
+}
+
 export const ListCategories = () => {
   const auth = useAuth();
   const { data, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: () => fetchCategories(auth.user?.access_token),
+  });
+  const { mutateAsync: mutateDeleteAsync } = useMutation({
+    mutationFn: (uuid?: string) =>
+      deleteCategory(uuid, auth.user?.access_token),
   });
   const queryClient = useQueryClient();
   const [checked, setChecked] = useState<Category[]>([]);
@@ -50,15 +76,47 @@ export const ListCategories = () => {
 
   const isAllCategoriesSelected = useCallback(() => {
     return data?.length === checked.length;
-  }, [checked, data])
+  }, [checked, data]);
 
   const handleAllCheckboxChange = () => {
     if (isAllCategoriesSelected()) {
-      setChecked([])
+      setChecked([]);
     } else {
       data && setChecked(data);
     }
-  }
+  };
+
+  const resetAfterDelete = () => {
+    queryClient.invalidateQueries(["categories"]);
+    setChecked([]);
+  };
+
+  const isAnySelected = () => {
+    return checked.length !== 0;
+  };
+
+  const deleteSelectedItems = () => {
+    if (!isAnySelected()) {
+      toast.error("You need to select items in order to delete them.");
+    }
+
+    const promises = checked.map((entry) => mutateDeleteAsync(entry.uuid));
+    toast.promise(Promise.all(promises), {
+      loading: `Deleting ${checked.length} categories...`,
+      success: () => {
+        resetAfterDelete();
+        return `${checked.length} categories were successfully deleted.`;
+      },
+      error: (responses: Response[]) => {
+        resetAfterDelete();
+        const failedDeletions = responses.filter(
+          (response) => !response.ok
+        ).length;
+        const allRequestedDeletions = responses.length;
+        return `${failedDeletions} from ${allRequestedDeletions} categories couldn't be deleted, please try again.`;
+      },
+    });
+  };
 
   return (
     <div className="container m-auto flex flex-col gap-5">
@@ -76,6 +134,13 @@ export const ListCategories = () => {
           ) : (
             <Icons.refresh />
           )}
+        </button>
+        <button
+          className="btn"
+          disabled={!isAnySelected()}
+          onClick={() => deleteSelectedItems()}
+        >
+          <Icons.delete />
         </button>
       </div>
       <div className="overflow-x-auto">
