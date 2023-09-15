@@ -1,9 +1,13 @@
-function App() {
+import { Navbar } from "./components/Navbar"
+
+function App({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      <h1>Vite + React</h1>
-      <button className="btn btn-primary">Button</button>
+      <Navbar />
+      <div>
+        { children }
+      </div>
     </div>
   )
 }
