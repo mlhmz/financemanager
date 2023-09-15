@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { Icons } from "../components/Icons";
 import { Category } from "./Category";
 import { toast } from "sonner";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 async function fetchCategories(token: string | undefined) {
   const response = await fetch("/api/v1/categories", {
@@ -118,6 +120,8 @@ export const ListCategories = () => {
     });
   };
 
+  dayjs.extend(relativeTime)
+
   return (
     <div className="container m-auto flex flex-col gap-5">
       <h1 className="text-3xl">Categories</h1>
@@ -157,8 +161,8 @@ export const ListCategories = () => {
               </th>
               <th></th>
               <th>Title</th>
-              <th>Created At</th>
-              <th>Updated At</th>
+              <th>Created</th>
+              <th>Updated</th>
             </tr>
           </thead>
           <tbody>
@@ -174,8 +178,8 @@ export const ListCategories = () => {
                 </td>
                 <td className="font-bold">{index}</td>
                 <td>{category.title}</td>
-                <td>{category.createdAt}</td>
-                <td>{category.updatedAt}</td>
+                <td>{dayjs(category.createdAt).fromNow()}</td>
+                <td>{dayjs(category.updatedAt).fromNow()}</td>
               </tr>
             ))}
           </tbody>
