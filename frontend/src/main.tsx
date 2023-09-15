@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { Providers } from "./Providers.tsx";
 import "./index.css";
-import router from "./Routes.tsx";
+import router from "./router.tsx";
 import { Toaster } from "sonner";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
