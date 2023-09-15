@@ -16,6 +16,23 @@ services:
       test: [ "CMD", "pg_isready", "-q", "-d", "${DEV_POSTGRES_DB:-fm}", "-U", "${DEV_POSTGRES_USER:-fm}" ]
       retries: 3
       timeout: 5s
+  api:
+    image: docker.io/library/financemanager:0.0.1-SNAPSHOT
+    restart: unless-stopped
+    links:
+      - dev-db
+      - keycloak
+    depends_on:
+      - dev-db
+      - keycloak
+    environment:
+      FM_DB_HOSTNAME: dev-db
+      FM_DB_PORT: 5432
+      FM_DB_NAME: '${DEV_POSTGRES_DB:-fm}'
+      FM_DB_USERNAME: '${DEV_POSTGRES_USER:-fm}'
+      FM_DB_PASSWORD: '${DEV_POSTGRES_PASSWORD:-fm}'
+      FM_KC_OAUTH_ISSUER_URI: http://localhost:8081/realm/fm
+      FM_KC_OAUTH_JWK_SET_URI: http://keycloak:8081/realms/fm/protocol/openid-connect/certs
   kc-db:
     image: postgres
     restart: unless-stopped
