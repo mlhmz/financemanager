@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Category } from "./Category";
 import { useAuth } from "react-oidc-context";
+import { Link } from "react-router-dom";
 import { Icons } from "../components/Icons";
-import { toast } from "sonner";
+import { Category } from "./Category";
 
 async function fetchCategories(token: string | undefined) {
   const response = await fetch("/api/v1/categories", {
@@ -35,9 +35,9 @@ export const ListCategories = () => {
     <div className="container m-auto flex flex-col gap-5">
       <h1 className="text-3xl">Categories</h1>
       <div className="self-end flex gap-3">
-        <button className="btn btn-primary">
-          <Icons.plus onClick={() => toast("Feature not implemented")} />
-        </button>
+        <Link to="/app/categories/create" className="btn btn-primary">
+          <Icons.plus />
+        </Link>
         <button
           className="btn"
           onClick={() => queryClient.invalidateQueries(["categories"])}
