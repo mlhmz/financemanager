@@ -3,6 +3,7 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { Hero } from "./Hero";
 import { PageNotFound } from "./PageNotFound";
 import { Layout } from "./Layout";
+import { ListCategories } from "./categories/ListCategories";
 
 const router = createBrowserRouter(
   [
@@ -13,6 +14,10 @@ const router = createBrowserRouter(
         {
           path: "",
           element: <Dashboard />,
+        },
+        {
+          path: "/app/categories",
+          element: <ListCategories />,
         },
       ],
     },

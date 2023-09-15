@@ -1,19 +1,27 @@
 import { useAuth } from "react-oidc-context";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
+import { useEffect } from "react";
 
 export const Layout = () => {
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (isAuthenticated === undefined) {
-    return <></>;
+  useEffect(() => console.log(isAuthenticated), [isAuthenticated]);
+
+  if (isAuthenticated === undefined || isLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen gap-3">
+          <span className="loading loading-spinner loading-lg"></span>
+          <p>Loading</p>
+      </div>
+    );
   }
 
   return isAuthenticated ? (
     <>
       <Navbar />
-      <div className="pt-24">
+      <div className="pt-24 mx-2">
         <Outlet />
       </div>
     </>
