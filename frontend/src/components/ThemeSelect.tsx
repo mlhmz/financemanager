@@ -15,7 +15,7 @@ export const ThemeSelect = () => {
         type="checkbox"
         className="toggle"
         checked={value === 'emerald'}
-        onClick={() => setValue(value === 'emerald' ? 'forest' : 'emerald')}
+        onChange={() => setValue(value === 'emerald' ? 'forest' : 'emerald')}
       />
     </div>
   );
