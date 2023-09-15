@@ -1,13 +1,10 @@
 import { useAuth } from "react-oidc-context";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
-import { useEffect } from "react";
 
 export const Layout = () => {
   const location = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
-
-  useEffect(() => console.log(isAuthenticated), [isAuthenticated]);
 
   if (isAuthenticated === undefined || isLoading) {
     return (
