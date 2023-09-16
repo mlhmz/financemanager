@@ -1,12 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
-import { useAuth } from "react-oidc-context";
-import { Link } from "react-router-dom";
-import { Icons } from "../components/Icons";
-import { Category } from "./Category";
-import { toast } from "sonner";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useMemo, useState } from "react";
+import { useAuth } from "react-oidc-context";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { Icons } from "../components/Icons";
+import { Category } from "./Category";
+import { CategoryTanstackTable } from "./components/CategoryTanstackTable";
 
 async function fetchCategories(token: string | undefined) {
   const response = await fetch("/api/v1/categories", {
@@ -30,7 +37,7 @@ async function fetchCategories(token: string | undefined) {
 async function deleteCategory(
   uuid?: string,
   token?: string
-) {
+): Promise<Response> {
   const response = await fetch(`/api/v1/categories/${uuid}`, {
     headers: {
       Authorization: `Bearer ${token ?? ""}`,
@@ -46,9 +53,12 @@ async function deleteCategory(
     if (error.message) throw new Error(error.message);
     throw new Error("Problem fetching data");
   }
+
+  return response;
 }
 
 export const ListCategories = () => {
+  dayjs.extend(relativeTime);
   const auth = useAuth();
   const { data, isLoading } = useQuery({
     queryKey: ["categories"],
@@ -59,68 +69,101 @@ export const ListCategories = () => {
       deleteCategory(uuid, auth.user?.access_token),
   });
   const queryClient = useQueryClient();
-  const [checked, setChecked] = useState<Category[]>([]);
-
-  const isCategoryContained = useCallback(
-    (category: Category) => {
-      return checked?.includes(category);
-    },
-    [checked]
+  const [rowSelection, setRowSelection] = useState({});
+  const helper = createColumnHelper<Category>();
+  const columns = useMemo(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <input
+            type="checkbox"
+            className="checkbox"
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="px-1">
+            <input
+              type="checkbox"
+              className="checkbox"
+              {...{
+                checked: row.getIsSelected(),
+                disabled: !row.getCanSelect(),
+                indeterminate: row.getIsSomeSelected(),
+                onChange: row.getToggleSelectedHandler(),
+              }}
+            />
+          </div>
+        ),
+      },
+      helper.accessor("uuid", {
+        header: () => "UUID",
+      }),
+      helper.accessor("title", {
+        header: () => "Title",
+      }),
+      helper.accessor("description", {
+        header: () => "Description",
+      }),
+      helper.accessor("createdAt", {
+        header: () => "Created At",
+        cell: (cell) => dayjs(cell.getValue()).fromNow(),
+      }),
+      helper.accessor("updatedAt", {
+        header: () => "Updated At",
+        cell: (cell) => dayjs(cell.getValue()).fromNow(),
+      }),
+    ],
+    [helper]
   );
-
-  const handleCheckboxChange = (category: Category) => {
-    if (isCategoryContained(category)) {
-      setChecked(checked.filter((entry) => entry !== category));
-    } else {
-      setChecked([...checked, category]);
-    }
-  };
-
-  const isAllCategoriesSelected = useCallback(() => {
-    return data?.length === checked.length;
-  }, [checked, data]);
-
-  const handleAllCheckboxChange = () => {
-    if (isAllCategoriesSelected()) {
-      setChecked([]);
-    } else {
-      data && setChecked(data);
-    }
-  };
+  const table = useReactTable<Category>({
+    columns: [
+      helper.group({
+        id: "categories",
+        columns: columns,
+      }),
+    ],
+    data: data ?? [],
+    state: {
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   const resetAfterDelete = () => {
     queryClient.invalidateQueries(["categories"]);
-    setChecked([]);
-  };
-
-  const isAnySelected = () => {
-    return checked.length !== 0;
+    setRowSelection({});
   };
 
   const deleteSelectedItems = () => {
-    if (!isAnySelected()) {
+    if (!table.getIsSomeRowsSelected) {
       toast.error("You need to select items in order to delete them.");
     }
 
-    const promises = checked.map((entry) => mutateDeleteAsync(entry.uuid));
+    const promises = table
+      .getSelectedRowModel()
+      .rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
     toast.promise(Promise.all(promises), {
-      loading: `Deleting ${checked.length} categories...`,
-      success: () => {
+      loading: `Deleting ${
+        table.getSelectedRowModel().rows.length
+      } categories...`,
+      success: (responses) => {
         resetAfterDelete();
-        return `${checked.length} categories were successfully deleted.`;
+        return `${responses.length} categories were successfully deleted.`;
       },
-      error: (responses: Response[]) => {
+      error: () => {
         resetAfterDelete();
-        const failedDeletions = responses.filter(
-          (response) => !response.ok
-        ).length;
-        const allRequestedDeletions = responses.length;
-        return `${failedDeletions} from ${allRequestedDeletions} categories couldn't be deleted, please try again.`;
+        // TODO: Give user proper callback
+        return "Deletion failed";
       },
     });
   };
-
-  dayjs.extend(relativeTime)
 
   return (
     <div className="container m-auto flex flex-col gap-5">
@@ -141,50 +184,13 @@ export const ListCategories = () => {
         </button>
         <button
           className="btn"
-          disabled={!isAnySelected()}
+          disabled={!table.getIsSomeRowsSelected()}
           onClick={() => deleteSelectedItems()}
         >
           <Icons.delete />
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={isAllCategoriesSelected()}
-                  onChange={handleAllCheckboxChange}
-                  className="checkbox"
-                />
-              </th>
-              <th></th>
-              <th>Title</th>
-              <th>Created</th>
-              <th>Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.map((category, index) => (
-              <tr key={category.uuid}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={isCategoryContained(category)}
-                    onChange={() => handleCheckboxChange(category)}
-                    className="checkbox"
-                  />
-                </td>
-                <td className="font-bold">{index}</td>
-                <td>{category.title}</td>
-                <td>{dayjs(category.createdAt).fromNow()}</td>
-                <td>{dayjs(category.updatedAt).fromNow()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <CategoryTanstackTable table={table} />
     </div>
   );
 };
