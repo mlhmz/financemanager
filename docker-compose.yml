@@ -17,7 +17,7 @@ services:
       retries: 3
       timeout: 5s
   api:
-    image: docker.io/library/financemanager:0.0.1-SNAPSHOT
+    image: mlhmz/family-task-tracking:latest
     restart: unless-stopped
     links:
       - dev-db
