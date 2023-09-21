@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createColumnHelper,
-  flexRender,
   getCoreRowModel,
-  useReactTable,
+  useReactTable
 } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -184,7 +183,7 @@ export const ListCategories = () => {
         </button>
         <button
           className="btn"
-          disabled={!table.getIsSomeRowsSelected()}
+          disabled={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
           onClick={() => deleteSelectedItems()}
         >
           <Icons.delete />
