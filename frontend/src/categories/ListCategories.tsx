@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createColumnHelper,
   getCoreRowModel,
-  useReactTable
+  useReactTable,
 } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -75,15 +75,17 @@ export const ListCategories = () => {
       {
         id: "select",
         header: ({ table }) => (
-          <input
-            type="checkbox"
-            className="checkbox"
-            {...{
-              checked: table.getIsAllRowsSelected(),
-              indeterminate: table.getIsSomeRowsSelected(),
-              onChange: table.getToggleAllRowsSelectedHandler(),
-            }}
-          />
+          <div className="px-1">
+            <input
+              type="checkbox"
+              className="checkbox"
+              {...{
+                checked: table.getIsAllRowsSelected(),
+                indeterminate: table.getIsSomeRowsSelected(),
+                onChange: table.getToggleAllRowsSelectedHandler(),
+              }}
+            />
+          </div>
         ),
         cell: ({ row }) => (
           <div className="px-1">
@@ -127,6 +129,11 @@ export const ListCategories = () => {
         columns: columns,
       }),
     ],
+    initialState: {
+      columnVisibility: {
+        uuid: false,
+      },
+    },
     data: data ?? [],
     state: {
       rowSelection,
@@ -183,7 +190,9 @@ export const ListCategories = () => {
         </button>
         <button
           className="btn"
-          disabled={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
+          disabled={
+            !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+          }
           onClick={() => deleteSelectedItems()}
         >
           <Icons.delete />
