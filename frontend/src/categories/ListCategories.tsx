@@ -142,7 +142,7 @@ export const ListCategories = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const resetAfterDelete = () => {
+  const resetTable = () => {
     queryClient.invalidateQueries(["categories"]);
     setRowSelection({});
   };
@@ -160,16 +160,20 @@ export const ListCategories = () => {
         table.getSelectedRowModel().rows.length
       } categories...`,
       success: (responses) => {
-        resetAfterDelete();
+        resetTable();
         return `${responses.length} categories were successfully deleted.`;
       },
       error: () => {
-        resetAfterDelete();
+        resetTable();
         // TODO: Give user proper callback
         return "Deletion failed";
       },
     });
   };
+
+  const isEditEnabled = () => {
+    return table.getSelectedRowModel().rows.length == 1;
+  }
 
   return (
     <div className="container m-auto flex flex-col gap-5">
@@ -178,15 +182,20 @@ export const ListCategories = () => {
         <Link to="/app/categories/create" className="btn btn-primary">
           <Icons.plus />
         </Link>
-        <button
-          className="btn"
-          onClick={() => queryClient.invalidateQueries(["categories"])}
-        >
+        <button className="btn" onClick={() => resetTable()}>
           {isLoading ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
             <Icons.refresh />
           )}
+        </button>
+        <button
+          className="btn"
+          disabled={!isEditEnabled()}
+        >
+          <Link to={`/app/categories/edit/${table.getSelectedRowModel().rows[0]?.original.uuid}`}>
+            <Icons.edit className={`${isEditEnabled() && "animate-pulse"}`} />
+          </Link>
         </button>
         <button
           className="btn"

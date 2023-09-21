@@ -1,4 +1,4 @@
-import { Loader, LucideIcon, Plus, RotateCw, Trash } from "lucide-react";
+import { Loader, LucideIcon, Pen, Plus, RotateCw, Trash } from "lucide-react";
 
 export type Icon = LucideIcon;
 
@@ -7,4 +7,5 @@ export const Icons = {
   plus: Plus,
   refresh: RotateCw,
   delete: Trash,
-}
+  edit: Pen,
+};

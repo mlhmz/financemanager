@@ -5,6 +5,7 @@ import { PageNotFound } from "./PageNotFound";
 import { Layout } from "./Layout";
 import { ListCategories } from "./categories/ListCategories";
 import { CreateCategory } from "./categories/CreateCategory";
+import { EditCategory } from "./categories/EditCategory";
 
 const router = createBrowserRouter(
   [
@@ -23,6 +24,10 @@ const router = createBrowserRouter(
         {
           path: "/app/categories/create",
           element: <CreateCategory />
+        },
+        {
+          path: "/app/categories/edit/:categoryId",
+          element: <EditCategory/>
         }
       ],
     },
