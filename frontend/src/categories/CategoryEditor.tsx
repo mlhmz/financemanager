@@ -43,7 +43,7 @@ export const CategoryEditor = ({
           ></textarea>
         </div>
         <div className="flex flex-col align-items-center m-auto">
-          <input type="submit" value="Create" className="btn btn-primary" />
+          <input type="submit" value="Save" className="btn btn-primary" />
         </div>
       </form>
     </div>
