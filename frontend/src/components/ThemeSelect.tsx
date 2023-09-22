@@ -1,12 +1,8 @@
-import { useEffect } from 'react';
-import { useLocalStorage } from 'react-use';
+import { useContext } from "react";
+import { ThemeContext } from "../ThemeContext";
 
 export const ThemeSelect = () => {
-  const [value, setValue] = useLocalStorage('theme', 'light');
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = value;
-  }, [value]);
+  const { theme, setTheme } = useContext(ThemeContext);
 
   return (
     <div>
@@ -14,8 +10,8 @@ export const ThemeSelect = () => {
         title="Toggle theme"
         type="checkbox"
         className="toggle"
-        checked={value === 'light'}
-        onChange={() => setValue(value === 'light' ? 'dark' : 'light')}
+        checked={theme === "light"}
+        onChange={() => setTheme(theme === "light" ? "dark" : "light")}
       />
     </div>
   );
