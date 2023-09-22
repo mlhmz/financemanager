@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
-import { useZodForm } from "../hooks/use-zod-form";
-import { Category, MutateCategory } from "./Category";
+import { useZodForm } from "../../hooks/use-zod-form";
+import { MutateCategory, Category } from "../Category";
 
 export const CategoryEditor = ({
   onSubmit,

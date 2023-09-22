@@ -3,9 +3,9 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { Hero } from "./Hero";
 import { PageNotFound } from "./PageNotFound";
 import { Layout } from "./Layout";
-import { ListCategories } from "./categories/ListCategories";
-import { CreateCategory } from "./categories/CreateCategory";
-import { EditCategory } from "./categories/EditCategory";
+import { CreateCategory } from "./categories/views/CreateCategory";
+import { EditCategory } from "./categories/views/EditCategory";
+import { ListCategories } from "./categories/views/ListCategories";
 
 const router = createBrowserRouter(
   [

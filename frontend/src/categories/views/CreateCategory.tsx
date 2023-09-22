@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Category, MutateCategory } from "./Category";
-import { CategoryEditor } from "./CategoryEditor";
+import { Category, MutateCategory } from "../Category";
+import { CategoryEditor } from "../components/CategoryEditor";
 
 async function createCategory(
   input: MutateCategory,

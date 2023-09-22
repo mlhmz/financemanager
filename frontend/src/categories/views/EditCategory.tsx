@@ -1,9 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { MutateCategory, Category } from "./Category";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "react-oidc-context";
 import { toast } from "sonner";
-import { CategoryEditor } from "./CategoryEditor";
+import { Category, MutateCategory } from "../Category";
+import { CategoryEditor } from "../components/CategoryEditor";
 
 async function fetchCategory(uuid?: string, token?: string) {
   const response = await fetch(`/api/v1/categories/${uuid}`, {

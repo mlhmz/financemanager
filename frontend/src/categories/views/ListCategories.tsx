@@ -10,9 +10,9 @@ import { useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Icons } from "../components/Icons";
-import { Category } from "./Category";
-import { CategoryTanstackTable } from "./components/CategoryTanstackTable";
+import { Icons } from "../../components/Icons";
+import { Category } from "../Category";
+import { CategoryTanstackTable } from "../components/CategoryTanstackTable";
 
 async function fetchCategories(token: string | undefined) {
   const response = await fetch("/api/v1/categories", {
