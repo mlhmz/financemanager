@@ -17,8 +17,10 @@ services:
       retries: 3
       timeout: 5s
   api:
-    image: mlhmz/family-task-tracking:latest
+    image: mlhmz/financemanager:latest
     restart: unless-stopped
+    ports: 
+      - "8085:8080"
     links:
       - dev-db
       - keycloak
@@ -31,8 +33,8 @@ services:
       FM_DB_NAME: '${DEV_POSTGRES_DB:-fm}'
       FM_DB_USERNAME: '${DEV_POSTGRES_USER:-fm}'
       FM_DB_PASSWORD: '${DEV_POSTGRES_PASSWORD:-fm}'
-      FM_KC_OAUTH_ISSUER_URI: http://localhost:8081/realm/fm
-      FM_KC_OAUTH_JWK_SET_URI: http://keycloak:8081/realms/fm/protocol/openid-connect/certs
+      FM_KC_OAUTH_ISSUER_URI: 'http://localhost:8081/realms/fm'
+      FM_KC_OAUTH_JWK_SET_URI: 'http://keycloak:8080/realms/fm/protocol/openid-connect/certs'
   kc-db:
     image: postgres
     restart: unless-stopped

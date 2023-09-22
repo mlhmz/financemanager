@@ -1,10 +1,17 @@
 import { useAuth } from "react-oidc-context";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export const Layout = () => {
   const location = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, error } = useAuth();
+
+  useEffect(() => {
+    error &&
+      toast.error(`An error occured while logging in: ${error?.message}`);
+  }, [error]);
 
   if (isAuthenticated === undefined || isLoading) {
     return (
@@ -14,7 +21,6 @@ export const Layout = () => {
       </div>
     );
   }
-
   return isAuthenticated ? (
     <>
       <Navbar />

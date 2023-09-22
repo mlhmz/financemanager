@@ -1,12 +1,19 @@
+import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Navigate, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
 export const Hero = () => {
   const location = useLocation();
-  const { signinRedirect, isAuthenticated } = useAuth();
+  const { signinRedirect, isAuthenticated, error } = useAuth();
+
+  useEffect(() => {
+    error &&
+      toast.error(`An error occured while authorizing: ${error?.message}`);
+  }, [error]);
 
   if (isAuthenticated) {
-    return <Navigate to="/app" replace state={{ from: location }} />
+    return <Navigate to="/app" replace state={{ from: location }} />;
   }
   return (
     <div className="container m-auto flex flex-col gap-5">
@@ -20,7 +27,10 @@ export const Hero = () => {
               erat, sed diam voluptua.
             </p>
             <div className="flex gap-3 items-center justify-center">
-              <a onClick={() => void signinRedirect()} className="btn btn-primary">
+              <a
+                onClick={() => void signinRedirect()}
+                className="btn btn-primary"
+              >
                 Login
               </a>
               <a href="https://github.com/mlhmz/financemanager" className="btn">
@@ -33,4 +43,3 @@ export const Hero = () => {
     </div>
   );
 };
- 
