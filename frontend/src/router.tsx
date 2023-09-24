@@ -6,6 +6,7 @@ import { Layout } from "./Layout";
 import { CreateCategory } from "./categories/views/CreateCategory";
 import { EditCategory } from "./categories/views/EditCategory";
 import { ListCategories } from "./categories/views/ListCategories";
+import { ListSheets } from "./sheets/views/ListSheets";
 
 const router = createBrowserRouter(
   [
@@ -23,12 +24,16 @@ const router = createBrowserRouter(
         },
         {
           path: "/app/categories/create",
-          element: <CreateCategory />
+          element: <CreateCategory />,
         },
         {
           path: "/app/categories/edit/:categoryId",
-          element: <EditCategory/>
-        }
+          element: <EditCategory />,
+        },
+        {
+          path: "/app/sheets",
+          element: <ListSheets />,
+        },
       ],
     },
     {

@@ -1,21 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createColumnHelper,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 import { Icons } from "../../components/Icons";
-import { Category } from "../Category";
 import { TanstackTable } from "../../components/TanstackTable";
+import { Sheet } from "../Sheet";
+import { toast } from "sonner";
 
-async function fetchCategories(token: string | undefined) {
-  const response = await fetch("/api/v1/categories", {
+async function fetchSheets(token: string | undefined) {
+  const response = await fetch("/api/v1/sheets", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -30,46 +29,17 @@ async function fetchCategories(token: string | undefined) {
   }
 
   const data = await response.json();
-  return data as Category[];
+  return data as Sheet[];
 }
 
-async function deleteCategory(
-  uuid?: string,
-  token?: string
-): Promise<Response> {
-  const response = await fetch(`/api/v1/categories/${uuid}`, {
-    headers: {
-      Authorization: `Bearer ${token ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    method: "DELETE",
-  });
-
-  if (response.status === 401) {
-    throw new Error("Invalid session, please reload the window.");
-  } else if (!response.ok) {
-    const error = await response.json();
-    if (error.message) throw new Error(error.message);
-    throw new Error("Problem fetching data");
-  }
-
-  return response;
-}
-
-export const ListCategories = () => {
-  dayjs.extend(relativeTime);
+export const ListSheets = () => {
   const auth = useAuth();
   const { data, isLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => fetchCategories(auth.user?.access_token),
+    queryKey: ["sheets"],
+    queryFn: () => fetchSheets(auth.user?.access_token),
   });
-  const { mutateAsync: mutateDeleteAsync } = useMutation({
-    mutationFn: (uuid?: string) =>
-      deleteCategory(uuid, auth.user?.access_token),
-  });
-  const queryClient = useQueryClient();
   const [rowSelection, setRowSelection] = useState({});
-  const helper = createColumnHelper<Category>();
+  const helper = createColumnHelper<Sheet>();
   const columns = useMemo(
     () => [
       {
@@ -108,9 +78,6 @@ export const ListCategories = () => {
       helper.accessor("title", {
         header: () => "Title",
       }),
-      helper.accessor("description", {
-        header: () => "Description",
-      }),
       helper.accessor("createdAt", {
         header: () => "Created At",
         cell: (cell) => dayjs(cell.getValue()).fromNow(),
@@ -122,10 +89,10 @@ export const ListCategories = () => {
     ],
     [helper]
   );
-  const table = useReactTable<Category>({
+  const table = useReactTable<Sheet>({
     columns: [
       helper.group({
-        id: "categories",
+        id: "sheets",
         columns: columns,
       }),
     ],
@@ -141,34 +108,11 @@ export const ListCategories = () => {
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
   });
+  const queryClient = useQueryClient();
 
   const resetTable = () => {
-    queryClient.invalidateQueries(["categories"]);
+    queryClient.invalidateQueries(["sheets"]);
     setRowSelection({});
-  };
-
-  const deleteSelectedItems = () => {
-    if (!table.getIsSomeRowsSelected) {
-      toast.error("You need to select items in order to delete them.");
-    }
-
-    const promises = table
-      .getSelectedRowModel()
-      .rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
-    toast.promise(Promise.all(promises), {
-      loading: `Deleting ${
-        table.getSelectedRowModel().rows.length
-      } categories...`,
-      success: (responses) => {
-        resetTable();
-        return `${responses.length} categories were successfully deleted.`;
-      },
-      error: () => {
-        resetTable();
-        // TODO: Give user proper callback
-        return "Deletion failed";
-      },
-    });
   };
 
   const isEditEnabled = () => {
@@ -177,9 +121,9 @@ export const ListCategories = () => {
 
   return (
     <div className="container m-auto flex flex-col gap-5">
-      <h1 className="text-3xl">Categories</h1>
+      <h1 className="text-3xl">Sheets</h1>
       <div className="self-end flex gap-3">
-        <Link to="/app/categories/create" className="btn btn-primary">
+        <Link to="/app/sheets/create" className="btn btn-primary">
           <Icons.plus />
         </Link>
         <button className="btn" onClick={() => resetTable()}>
@@ -193,7 +137,7 @@ export const ListCategories = () => {
           className="btn"
           disabled={!isEditEnabled()}
         >
-          <Link to={`/app/categories/edit/${table.getSelectedRowModel().rows[0]?.original.uuid}`}>
+          <Link to={`/app/sheets/edit/${table.getSelectedRowModel().rows[0]?.original.uuid}`}>
             <Icons.edit className={`${isEditEnabled() && "animate-pulse"}`} />
           </Link>
         </button>
@@ -202,12 +146,15 @@ export const ListCategories = () => {
           disabled={
             !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
           }
-          onClick={() => deleteSelectedItems()}
+          onClick={() => {
+            // TODO: Implement delete
+            toast.error("Not implemented!")
+          }}
         >
           <Icons.delete />
         </button>
       </div>
-      <TanstackTable<Category> table={table} />
+      <TanstackTable<Sheet> table={table} />
     </div>
   );
 };

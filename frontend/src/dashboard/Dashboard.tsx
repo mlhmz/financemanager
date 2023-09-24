@@ -18,12 +18,12 @@ export const Dashboard = () => {
             <p>Manage your categories</p>
           </div>
         </Link>
-        <div className="card w-96 bg-neutral hover:bg-neutral-focus text-neutral-content cursor-pointer">
+        <Link to="/app/sheets" className="card w-96 bg-neutral hover:bg-neutral-focus text-neutral-content cursor-pointer">
           <div className="card-body">
             <h2 className="card-title">Sheets</h2>
             <p>See and manage your sheets</p>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );
