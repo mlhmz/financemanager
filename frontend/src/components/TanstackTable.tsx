@@ -1,7 +1,6 @@
 import { Table, flexRender } from "@tanstack/react-table";
-import { Category } from "../Category";
 
-export const CategoryTanstackTable = ({ table }: { table: Table<Category> }) => {
+export function TanstackTable<T>({ table }: { table: Table<T> }) {
   return (
     <div className="overflow-x-auto">
       <table className="table">
