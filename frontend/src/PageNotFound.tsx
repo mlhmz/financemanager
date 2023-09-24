@@ -6,7 +6,7 @@ export const PageNotFound = () => {
           <div className="max-w-md">
             <h1 className="text-5xl font-bold">404</h1>
             <p className="py-6">
-              Sorry, but the page you search couldn't be found.
+              Sorry, but the page you search for couldn't be found.
             </p>
           </div>
         </div>
