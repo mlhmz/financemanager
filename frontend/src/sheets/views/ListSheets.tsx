@@ -4,7 +4,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
@@ -12,6 +11,8 @@ import { Icons } from "../../components/Icons";
 import { TanstackTable } from "../../components/TanstackTable";
 import { Sheet } from "../Sheet";
 import { toast } from "sonner";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 async function fetchSheets(token: string | undefined) {
   const response = await fetch("/api/v1/sheets", {
@@ -33,6 +34,7 @@ async function fetchSheets(token: string | undefined) {
 }
 
 export const ListSheets = () => {
+  dayjs.extend(relativeTime);
   const auth = useAuth();
   const { data, isLoading } = useQuery({
     queryKey: ["sheets"],
