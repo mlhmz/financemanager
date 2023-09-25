@@ -88,6 +88,17 @@ export const ListSheets = () => {
         header: () => "Updated At",
         cell: (cell) => dayjs(cell.getValue()).fromNow(),
       }),
+{
+        id: "actions",
+        header: () => "Actions",
+        cell: ({ row }) => (
+          <div className="tooltip" data-tip="View sheet">
+            <Link to={`/app/sheets/${row.original.uuid}`} className="btn">
+              <Icons.table />
+            </Link>
+          </div>
+        ),
+      },
     ],
     [helper]
   );
@@ -109,6 +120,11 @@ export const ListSheets = () => {
     },
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+defaultColumn: {
+      minSize: 0,
+      size: Number.MAX_SAFE_INTEGER,
+      maxSize: Number.MAX_SAFE_INTEGER,
+    },
   });
   const queryClient = useQueryClient();
 
@@ -119,7 +135,7 @@ export const ListSheets = () => {
 
   const isEditEnabled = () => {
     return table.getSelectedRowModel().rows.length == 1;
-  }
+  };
 
   return (
     <div className="container m-auto flex flex-col gap-5">
@@ -135,11 +151,12 @@ export const ListSheets = () => {
             <Icons.refresh />
           )}
         </button>
-        <button
-          className="btn"
-          disabled={!isEditEnabled()}
-        >
-          <Link to={`/app/sheets/edit/${table.getSelectedRowModel().rows[0]?.original.uuid}`}>
+        <button className="btn" disabled={!isEditEnabled()}>
+          <Link
+            to={`/app/sheets/edit/${
+              table.getSelectedRowModel().rows[0]?.original.uuid
+            }`}
+          >
             <Icons.edit className={`${isEditEnabled() && "animate-pulse"}`} />
           </Link>
         </button>
@@ -150,7 +167,7 @@ export const ListSheets = () => {
           }
           onClick={() => {
             // TODO: Implement delete
-            toast.error("Not implemented!")
+            toast.error("Not implemented!");
           }}
         >
           <Icons.delete />
