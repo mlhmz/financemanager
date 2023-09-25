@@ -2,6 +2,7 @@ package xyz.mlhmz.financemanager.services;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 import xyz.mlhmz.financemanager.entities.Category;
+import xyz.mlhmz.financemanager.entities.Sheet;
 import xyz.mlhmz.financemanager.entities.Transaction;
 
 import java.util.List;
@@ -15,6 +16,10 @@ public interface TransactionService {
     List<Transaction> findTransactionsByCategoryUUID(UUID uuid, Jwt jwt);
 
     List<Transaction> findTransactionsByCategory(Category category, Jwt jwt);
+
+    List<Transaction> findTransactionsBySheet(UUID sheetUuid, Jwt jwt);
+
+    List<Transaction> findTransactionsBySheet(Sheet sheet, Jwt jwt);
 
     Transaction findTransactionByUUID(UUID uuid, Jwt jwt);
 

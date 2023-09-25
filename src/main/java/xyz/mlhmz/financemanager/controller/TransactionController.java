@@ -57,6 +57,15 @@ public class TransactionController {
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
     }
 
+    @GetMapping("/sheet/{uuid}")
+    public List<QueryTransactionDto> findTransactionsBySheetUUID(
+            @PathVariable UUID uuid,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        List<Transaction> transactions = this.transactionService.findTransactionsBySheet(uuid, jwt);
+        return this.transactionMapper.mapTransactionListToQueryTransactionDtoList(transactions);
+    }
+
     @PutMapping("/{uuid}")
     public QueryTransactionDto updateTransactionByUUID(
             @PathVariable UUID uuid,

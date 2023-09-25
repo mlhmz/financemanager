@@ -1,10 +1,13 @@
 package xyz.mlhmz.financemanager.services;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import xyz.mlhmz.financemanager.entities.Category;
 import xyz.mlhmz.financemanager.entities.OAuthUser;
+import xyz.mlhmz.financemanager.entities.Sheet;
 import xyz.mlhmz.financemanager.entities.Transaction;
 import xyz.mlhmz.financemanager.exceptions.TransactionNotFoundException;
 import xyz.mlhmz.financemanager.mappers.TransactionMapper;
@@ -47,6 +50,20 @@ public class TransactionServiceImpl implements TransactionService {
     public List<Transaction> findTransactionsByCategory(Category category, Jwt jwt) {
         OAuthUser user = oAuthUserService.findUserByJwt(jwt);
         return this.transactionRepository.findTransactionsByCategoryAndUser(category, user);
+    }
+
+    @Override
+    @Transactional
+    public List<Transaction> findTransactionsBySheet(UUID sheetUuid, Jwt jwt) {
+        Sheet sheet = this.sheetService.findSheetByUUID(sheetUuid, jwt);
+        return this.findTransactionsBySheet(sheet, jwt);
+    }
+
+    @Override
+    @Transactional
+    public List<Transaction> findTransactionsBySheet(Sheet sheet, Jwt jwt) {
+        Hibernate.initialize(sheet.getTransactions());
+        return sheet.getTransactions();
     }
 
     @Override

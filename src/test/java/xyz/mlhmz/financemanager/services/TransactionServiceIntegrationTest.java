@@ -149,6 +149,36 @@ class TransactionServiceIntegrationTest extends PostgresContextContainerTest {
     }
 
     @Test
+    @DisplayName("findTransactionsBySheet() only shows Objects in Sheet")
+    void findTransactionsBySheet() {
+        Transaction firstTransaction = Transaction.builder()
+                .title("transaction")
+                .description("description")
+                .build();
+        Transaction secondTransaction = Transaction.builder()
+                .title("transaction")
+                .description("description")
+                .build();
+        Transaction thirdTransactionWithoutDifferentSheet = Transaction.builder()
+                .title("transaction")
+                .description("description")
+                .build();
+
+        Sheet sheet = this.sheetRepository.save(this.sheetService.createSheet(Sheet.builder().title("New Sheet").build(), jwt));
+
+        this.transactionService.createTransaction(firstTransaction, defaultSheet.getUuid(), defaultCategory.getUuid(), jwt);
+        this.transactionService.createTransaction(secondTransaction, defaultSheet.getUuid(), defaultCategory.getUuid(), jwt);
+        this.transactionService.createTransaction(thirdTransactionWithoutDifferentSheet, sheet.getUuid(), null, jwt);
+
+
+        List<Transaction> transactions = this.transactionService.findTransactionsBySheet(defaultSheet.getUuid(), jwt);
+
+        assertThat(transactions)
+                .isNotNull()
+                .hasSize(2);
+    }
+
+    @Test
     @DisplayName("findTransactionById() finds created object")
     void findTransactionById() {
         String title = "transaction";
