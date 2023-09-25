@@ -2,18 +2,17 @@ import { Dispatch } from "react";
 import { useZodForm } from "../../hooks/use-zod-form";
 import { MutateSheet, Sheet } from "../Sheet";
 
-export const SheetEditor = ({
-  onSubmit,
-  initialData
-}: {
+interface SheetEditorProps {
   onSubmit: Dispatch<MutateSheet>;
   initialData?: Sheet;
-}) => {
+}
+
+export const SheetEditor = ({ onSubmit, initialData }: SheetEditorProps) => {
   const { register, handleSubmit } = useZodForm({
     schema: MutateSheet,
     defaultValues: {
       title: initialData?.title,
-    }
+    },
   });
 
   return (

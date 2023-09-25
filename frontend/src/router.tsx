@@ -8,6 +8,8 @@ import { EditCategory } from "./categories/views/EditCategory";
 import { ListCategories } from "./categories/views/ListCategories";
 import { ListSheets } from "./sheets/views/ListSheets";
 import { CreateSheet } from "./sheets/views/CreateSheet";
+import { ShowSheet } from "./sheets/views/ShowSheet";
+import { CreateTransaction } from "./transactions/views/CreateTransaction";
 
 const router = createBrowserRouter(
   [
@@ -38,6 +40,14 @@ const router = createBrowserRouter(
         {
           path: "/app/sheets/create",
           element: <CreateSheet />,
+        },
+        {
+          path: "/app/sheets/:sheetId",
+          element: <ShowSheet />,
+        },
+        {
+          path: "/app/transactions/create/:sheetId",
+          element: <CreateTransaction />
         },
       ],
     },
