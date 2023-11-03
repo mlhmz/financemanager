@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { Navigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -7,10 +6,7 @@ export const Hero = () => {
   const location = useLocation();
   const { signinRedirect, isAuthenticated, error } = useAuth();
 
-  useEffect(() => {
-    error &&
-      toast.error(`An error occured while authorizing: ${error?.message}`);
-  }, [error]);
+  error && toast.error(`An error occured while authorizing: ${error?.message}`);
 
   if (isAuthenticated) {
     return <Navigate to="/app" replace state={{ from: location }} />;

@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect } from "react";
+import { ReactNode, createContext } from "react";
 import { useLocalStorage } from "react-use";
 
 interface ThemeContextContent {
@@ -14,9 +14,7 @@ export const ThemeContext = createContext<ThemeContextContent>({
 export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useLocalStorage("theme", "light");
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
+  document.documentElement.dataset.theme = theme;
 
   return (
     <ThemeContext.Provider
