@@ -13,7 +13,7 @@ export const SheetStatsInstruments = ({
 			<div className="stat">
 				<h5 className="stat-title">Sheet sum</h5>
 				<p className="stat-value">
-					<CurrencyCell amount={stats?.sum} />
+					<CurrencyCell amount={stats?.sum ?? 0} />
 				</p>
 			</div>
 		</div>
