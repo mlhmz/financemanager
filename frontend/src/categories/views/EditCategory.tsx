@@ -63,7 +63,7 @@ export const EditCategory = () => {
     mutationFn: (category: MutateCategory) => {
       return updateCategory(category, categoryId, auth.user?.access_token);
     },
-    onSettled: () => queryClient.invalidateQueries(["categories"]),
+    onSettled: () => queryClient.invalidateQueries({queryKey: ["categories"]}),
   });
 
   const onSubmit = (formData: MutateCategory) => {

@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import xyz.mlhmz.financemanager.dtos.MutateSheetDto;
 import xyz.mlhmz.financemanager.dtos.QuerySheetDto;
+import xyz.mlhmz.financemanager.dtos.SheetStatsDto;
 import xyz.mlhmz.financemanager.entities.Sheet;
 import xyz.mlhmz.financemanager.mappers.SheetMapper;
 import xyz.mlhmz.financemanager.services.SheetService;
@@ -34,6 +35,11 @@ public class SheetController {
         return this.sheetMapper.mapSheetListToQuerySheetDtoList(
                 this.sheetService.findAllSheets(jwt)
         );
+    }
+
+    @GetMapping("/{uuid}/stats")
+    public SheetStatsDto calculateSheetStats(@PathVariable UUID uuid, @AuthenticationPrincipal Jwt jwt) {
+        return new SheetStatsDto(this.sheetService.sumSheetTransactionsByUuidAndUser(uuid, jwt));
     }
 
     @GetMapping("/{uuid}")

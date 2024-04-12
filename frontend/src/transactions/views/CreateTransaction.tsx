@@ -38,7 +38,7 @@ export const CreateTransaction = () => {
     mutationFn: (data: MutateTransaction) => {
       return createTransaction(data, auth.user?.access_token);
     },
-    onSettled: () => queryClient.invalidateQueries(["sheets"]),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["sheets"] }),
   });
 
   const onSubmit = (formData: MutateTransaction) => {

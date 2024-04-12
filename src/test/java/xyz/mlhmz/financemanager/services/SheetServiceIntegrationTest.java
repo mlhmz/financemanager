@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.oauth2.jwt.Jwt;
 import xyz.mlhmz.financemanager.PostgresContextContainerTest;
+import xyz.mlhmz.financemanager.entities.Category;
 import xyz.mlhmz.financemanager.entities.OAuthUser;
 import xyz.mlhmz.financemanager.entities.Sheet;
+import xyz.mlhmz.financemanager.entities.Transaction;
 import xyz.mlhmz.financemanager.exceptions.SheetNotFoundException;
 import xyz.mlhmz.financemanager.repositories.SheetRepository;
+import xyz.mlhmz.financemanager.util.FakeDataTestUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +31,8 @@ class SheetServiceIntegrationTest extends PostgresContextContainerTest {
     SheetService sheetService;
     @Autowired
     SheetRepository sheetRepository;
+    @Autowired
+    TransactionService transactionService;
     @MockBean
     Jwt jwt;
 
@@ -156,5 +161,28 @@ class SheetServiceIntegrationTest extends PostgresContextContainerTest {
         this.sheetService.deleteSheetByUUID(sheetUuid, jwt);
 
         assertThat(this.sheetRepository.findAll()).isEmpty();
+    }
+
+    @Test
+    void sumSheetTransactionsByUuidAndUser() {
+        Sheet sheet = FakeDataTestUtil.createFakeSheet();
+
+        sheet = this.sheetService.createSheet(sheet, jwt);
+
+        Category category = FakeDataTestUtil.createFakeCategory();
+
+        double firstAmount = 150.50;
+        Transaction firstTransaction = FakeDataTestUtil.createFakeTransaction(firstAmount);
+        double secondAmount = -40.00;
+        Transaction secondTransaction = FakeDataTestUtil.createFakeTransaction( secondAmount);
+        double thirdAmount = 20.00;
+        Transaction thirdTransaction = FakeDataTestUtil.createFakeTransaction(thirdAmount);
+
+        this.transactionService.createTransaction(firstTransaction, sheet.getUuid(), category.getUuid(), jwt);
+        this.transactionService.createTransaction(secondTransaction, sheet.getUuid(), category.getUuid(), jwt);
+        this.transactionService.createTransaction(thirdTransaction, sheet.getUuid(), category.getUuid(), jwt);
+
+        assertThat(sheetService.sumSheetTransactionsByUuidAndUser(sheet.getUuid(), jwt))
+                .isEqualTo(firstAmount + secondAmount + thirdAmount);
     }
 }

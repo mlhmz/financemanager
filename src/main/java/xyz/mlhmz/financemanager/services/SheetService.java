@@ -13,6 +13,8 @@ public interface SheetService {
 
     Sheet findSheetByUUID(UUID uuid, Jwt jwt);
 
+    Double sumSheetTransactionsByUuidAndUser(UUID uuid, Jwt jwt);
+
     Sheet updateSheet(UUID uuid, Sheet sheet, Jwt jwt);
 
     void deleteSheetByUUID(UUID uuid, Jwt jwt);

@@ -36,6 +36,11 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
+    public Double sumSheetTransactionsByUuidAndUser(UUID uuid, Jwt jwt) {
+        return this.sheetRepository.sumSheetTransactionsByUuidAndUser(uuid, this.oAuthUserService.findUserByJwt(jwt));
+    }
+
+    @Override
     public Sheet updateSheet(UUID uuid, Sheet newSheet, Jwt jwt) {
         Sheet existingSheet = this.findSheetByUUID(uuid, jwt);
         this.sheetMapper.updateSheet(existingSheet, newSheet);
