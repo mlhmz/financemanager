@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
+	type ColumnDef,
 	createColumnHelper,
 	getCoreRowModel,
 	useReactTable,
@@ -31,7 +32,7 @@ export const TransactionList = ({
 	const helper = createColumnHelper<Transaction>();
 	const columns = useMemo(
 		() => [
-			{
+			helper.display({
 				id: "select",
 				header: ({ table }) => (
 					<div className="px-1">
@@ -60,7 +61,7 @@ export const TransactionList = ({
 						/>
 					</div>
 				),
-			},
+			}),
 			helper.accessor("uuid", {
 				header: () => "UUID",
 			}),
@@ -105,7 +106,7 @@ export const TransactionList = ({
 	const queryClient = useQueryClient();
 
 	const isEditEnabled = () => {
-		return table.getSelectedRowModel().rows.length == 1;
+		return table.getSelectedRowModel().rows.length === 1;
 	};
 
 	const resetTable = () => {
@@ -117,14 +118,14 @@ export const TransactionList = ({
 		<>
 			<div className="self-end flex gap-3">
 				<Link
-					to={`/app/transactions/create${sheet ? "/" + sheet.uuid : ""}`}
+					to={`/app/transactions/create${sheet ? `/${sheet.uuid}` : ""}`}
 					className="btn btn-primary"
 				>
 					<Icons.plus />
 				</Link>
 				<button className="btn" onClick={() => resetTable()}>
 					{isLoading ? (
-						<span className="loading loading-spinner loading-sm"></span>
+						<span className="loading loading-spinner loading-sm" />
 					) : (
 						<Icons.refresh />
 					)}
