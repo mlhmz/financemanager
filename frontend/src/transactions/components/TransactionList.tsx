@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
-	type ColumnDef,
 	createColumnHelper,
 	getCoreRowModel,
 	useReactTable,
@@ -15,6 +14,8 @@ import { Icons } from "../../components/Icons";
 import { TanstackTable } from "../../components/TanstackTable";
 import type { Sheet } from "../../sheets/Sheet";
 import type { Transaction } from "../Transaction";
+import { useMutateDeleteTransaction } from "../hooks/use-mutate-delete-transaction";
+import { useAuth } from "react-oidc-context";
 
 interface TransactionListProps {
 	isLoading: boolean;
@@ -28,6 +29,10 @@ export const TransactionList = ({
 	sheet,
 }: TransactionListProps) => {
 	dayjs.extend(relativeTime);
+	const { user } = useAuth();
+	const { mutateAsync: mutateDeleteAsync } = useMutateDeleteTransaction({
+		token: user?.access_token,
+	});
 	const [rowSelection, setRowSelection] = useState({});
 	const helper = createColumnHelper<Transaction>();
 	const columns = useMemo(
@@ -114,6 +119,30 @@ export const TransactionList = ({
 		setRowSelection({});
 	};
 
+	const deleteSelectedItems = () => {
+		if (!table.getIsSomeRowsSelected) {
+			toast.error("You need to select items in order to delete them.");
+		}
+
+		const promises = table
+			.getSelectedRowModel()
+			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
+		toast.promise(Promise.all(promises), {
+			loading: `Deleting ${
+				table.getSelectedRowModel().rows.length
+			} transactions...`,
+			success: (responses) => {
+				resetTable();
+				return `${responses.length} transactions were successfully deleted.`;
+			},
+			error: () => {
+				resetTable();
+				// TODO: Give user proper callback
+				return "Deletion failed";
+			},
+		});
+	};
+
 	return (
 		<>
 			<div className="self-end flex gap-3">
@@ -144,10 +173,7 @@ export const TransactionList = ({
 					disabled={
 						!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
 					}
-					onClick={() => {
-						// TODO: Implement delete
-						toast.error("Not implemented!");
-					}}
+					onClick={() => deleteSelectedItems()}
 				>
 					<Icons.delete />
 				</button>
