@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Icons } from "../../components/Icons";
 import { TanstackTable } from "../../components/TanstackTable";
 import type { Sheet } from "../Sheet";
-import { useQuerySheets } from "../use-query-sheets.tsx";
+import { useQuerySheets } from "../hooks/use-query-sheets.tsx";
 
 export const ListSheets = () => {
 	dayjs.extend(relativeTime);

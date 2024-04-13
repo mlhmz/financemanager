@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Dashboard } from "./common/Dashboard";
+import { Dashboard } from "./dashboard/Dashboard";
 import { Hero } from "./Hero";
 import { PageNotFound } from "./PageNotFound";
 import { Layout } from "./Layout";

@@ -1,8 +1,9 @@
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { CardSkeletons } from "../components/CardSkeletons.tsx";
-import { useQuerySheets } from "../sheets/use-query-sheets.tsx";
+import { useQuerySheets } from "../sheets/hooks/use-query-sheets.tsx";
 import { Icons } from "../components/Icons.tsx";
+import { SheetCard } from "./components/SheetCard.tsx";
 
 export const Dashboard = () => {
 	const auth = useAuth();
@@ -17,9 +18,12 @@ export const Dashboard = () => {
 			<div className="w-full flex flex-col my-5 gap-5">
 				<div className="flex gap-3">
 					<div className="flex flex-col items-center">
-						<button className="bg-neutral hover:bg-opacity-80 text-neutral-content p-1 rounded-md">
+						<Link
+							to="/app/categories"
+							className="bg-neutral hover:bg-opacity-80 text-neutral-content p-1 rounded-md"
+						>
 							<Icons.tag />
-						</button>
+						</Link>
 						<p>Categories</p>
 					</div>
 					<div className="flex flex-col items-center">
@@ -32,22 +36,16 @@ export const Dashboard = () => {
 						<p>Sheets</p>
 					</div>
 				</div>
-				<div className="flex flex-col gap-3 w-full">
-					<h1 className="text-xl">Transactions</h1>
-					<div className="flex flex-wrap">
+				<div className="flex flex-col w-full gap-3">
+					<div>
+						<h1 className="text-xl">Transactions</h1>
+						<p>Grouped by sheets</p>
+					</div>
+					<div className="flex flex-wrap gap-3">
 						{isLoading ? (
 							<CardSkeletons amount={13} />
 						) : (
-							data?.map((sheet) => (
-								<Link
-									to={`/app/sheets/${sheet.uuid}`}
-									className="card max-sm:w-[48%] w-52 m-1 h-28 bg-neutral hover:bg-opacity-80 text-neutral-content cursor-pointer transition-all"
-								>
-									<div className="card-body">
-										<h2 className="card-title">{sheet.title}</h2>
-									</div>
-								</Link>
-							))
+							data?.map((sheet) => <SheetCard sheet={sheet} />)
 						)}
 					</div>
 				</div>
