@@ -14,11 +14,15 @@ import { Icons } from "../../components/Icons";
 import { TanstackTable } from "../../components/TanstackTable";
 import type { Sheet } from "../Sheet";
 import { useQuerySheets } from "../hooks/use-query-sheets.tsx";
+import { useMutateDeleteSheet } from "../hooks/use-mutate-delete-sheet.tsx";
 
 export const ListSheets = () => {
 	dayjs.extend(relativeTime);
 	const auth = useAuth();
 	const { data, isLoading } = useQuerySheets({
+		token: auth.user?.access_token,
+	});
+	const { mutateAsync: mutateDeleteAsync } = useMutateDeleteSheet({
 		token: auth.user?.access_token,
 	});
 	const [rowSelection, setRowSelection] = useState({});
@@ -118,6 +122,28 @@ export const ListSheets = () => {
 		return table.getSelectedRowModel().rows.length === 1;
 	};
 
+	const deleteSelectedItems = () => {
+		if (!table.getIsSomeRowsSelected) {
+			toast.error("You need to select items in order to delete them.");
+		}
+
+		const promises = table
+			.getSelectedRowModel()
+			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
+		toast.promise(Promise.all(promises), {
+			loading: `Deleting ${table.getSelectedRowModel().rows.length} sheets...`,
+			success: (responses) => {
+				resetTable();
+				return `${responses.length} sheets were successfully deleted.`;
+			},
+			error: () => {
+				resetTable();
+				// TODO: Give user proper callback
+				return "Deletion failed";
+			},
+		});
+	};
+
 	return (
 		<div className="container m-auto flex flex-col gap-5">
 			<h1 className="text-3xl">Sheets</h1>
@@ -146,10 +172,7 @@ export const ListSheets = () => {
 					disabled={
 						!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
 					}
-					onClick={() => {
-						// TODO: Implement delete
-						toast.error("Not implemented!");
-					}}
+					onClick={() => deleteSelectedItems()}
 				>
 					<Icons.delete />
 				</button>
