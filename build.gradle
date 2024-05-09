@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-graphql'
 	implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
 	implementation 'com.tailrocks.graphql:graphql-datetime-spring-boot-starter:6.0.0'
+	implementation 'com.github.javafaker:javafaker:1.0.2'
 	implementation 'com.jayway.jsonpath:json-path:2.9.0'
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	compileOnly 'org.projectlombok:lombok'
