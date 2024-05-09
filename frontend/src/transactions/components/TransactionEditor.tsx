@@ -1,6 +1,7 @@
 import { Dispatch } from "react";
-import { MutateTransaction, Transaction } from "../Transaction";
+import { CategorySuggestion } from "../../categories/components/CategorySuggestion";
 import { useZodForm } from "../../hooks/use-zod-form";
+import { MutateTransaction, Transaction } from "../Transaction";
 
 interface TransactionEditorProps {
 	onSubmit: Dispatch<MutateTransaction>;
@@ -13,7 +14,7 @@ export const TransactionEditor = ({
 	sheetId,
 	initialData,
 }: TransactionEditorProps) => {
-	const { register, handleSubmit, formState } = useZodForm({
+	const { register, handleSubmit, formState, setValue } = useZodForm({
 		schema: MutateTransaction,
 		defaultValues: {
 			title: initialData?.title,
@@ -65,8 +66,12 @@ export const TransactionEditor = ({
 						/>
 						<span>€</span>
 					</label>
-
 					<p className="text-red-600">{formState.errors.amount?.message}</p>
+				</div>
+				<div className="flex flex-col gap-1 w-full">
+					<label htmlFor="category-select">Category</label>
+					<CategorySuggestion register={register} setValue={setValue} />
+					<p className="text-red-600">{formState.errors.categoryId?.message}</p>
 				</div>
 				<div className="flex flex-col gap-1 w-full">
 					<label htmlFor="amount-input">Timestamp</label>
