@@ -2,15 +2,15 @@ package xyz.mlhmz.financemanager.controller;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import xyz.mlhmz.financemanager.dtos.MoveTransactionToSheetDto;
-import xyz.mlhmz.financemanager.dtos.MutateTransactionDto;
-import xyz.mlhmz.financemanager.dtos.QueryTransactionDto;
-import xyz.mlhmz.financemanager.dtos.UpdateTransactionCategoryDto;
+import xyz.mlhmz.financemanager.dtos.*;
 import xyz.mlhmz.financemanager.entities.Transaction;
+import xyz.mlhmz.financemanager.filter.TransactionFilterInput;
 import xyz.mlhmz.financemanager.mappers.TransactionMapper;
 import xyz.mlhmz.financemanager.services.TransactionService;
 
@@ -37,8 +37,21 @@ public class TransactionController {
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
     }
 
-    @GetMapping
+    @QueryMapping
     public List<QueryTransactionDto> findAllTransactions(
+            @Argument TransactionFilterInput filter,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        List<Transaction> transactions = this.transactionService.findAllTransactions(filter, jwt);
+        return this.transactionMapper.mapTransactionListToQueryTransactionDtoList(transactions);
+    }
+
+    /**
+     * Replaced with GraphQL Query Mapping {@link #findAllTransactions(TransactionFilterInput, Jwt)}
+     */
+    @Deprecated
+    @GetMapping
+    public List<QueryTransactionDto> getAllTransactions(
             @RequestParam(name = "categoryUuid", required = false) String categoryUuid,
             @AuthenticationPrincipal Jwt jwt
     ) {

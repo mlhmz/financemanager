@@ -4,6 +4,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import xyz.mlhmz.financemanager.entities.Category;
 import xyz.mlhmz.financemanager.entities.Sheet;
 import xyz.mlhmz.financemanager.entities.Transaction;
+import xyz.mlhmz.financemanager.filter.TransactionFilter;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +13,8 @@ public interface TransactionService {
     Transaction createTransaction(Transaction transaction, UUID sheet, UUID categoryId, Jwt jwt);
 
     List<Transaction> findAllTransactions(Jwt jwt);
+
+    List<Transaction> findAllTransactions(TransactionFilter filter, Jwt jwt);
 
     List<Transaction> findTransactionsByCategoryUUID(UUID uuid, Jwt jwt);
 

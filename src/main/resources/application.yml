@@ -16,6 +16,11 @@ spring:
           issuer-uri: http://localhost:8081/realms/fm
           jwk-set-uri: http://localhost:8081/realms/fm/protocol/openid-connect/certs
 
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+
 server:
   port: 8085
 

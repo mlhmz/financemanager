@@ -3,6 +3,7 @@ package xyz.mlhmz.financemanager.services;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import xyz.mlhmz.financemanager.entities.Category;
@@ -10,11 +11,15 @@ import xyz.mlhmz.financemanager.entities.OAuthUser;
 import xyz.mlhmz.financemanager.entities.Sheet;
 import xyz.mlhmz.financemanager.entities.Transaction;
 import xyz.mlhmz.financemanager.exceptions.TransactionNotFoundException;
+import xyz.mlhmz.financemanager.filter.TransactionFilter;
 import xyz.mlhmz.financemanager.mappers.TransactionMapper;
 import xyz.mlhmz.financemanager.repositories.TransactionRepository;
 
 import java.util.List;
 import java.util.UUID;
+
+import static xyz.mlhmz.financemanager.specifications.TransactionSpecification.fromTransactionFilter;
+import static xyz.mlhmz.financemanager.specifications.TransactionSpecification.withUserInTransaction;
 
 @Service
 @AllArgsConstructor
@@ -38,6 +43,16 @@ public class TransactionServiceImpl implements TransactionService {
     public List<Transaction> findAllTransactions(Jwt jwt) {
         OAuthUser user = oAuthUserService.findUserByJwt(jwt);
         return this.transactionRepository.findTransactionsByUser(user);
+    }
+
+    @Override
+    public List<Transaction> findAllTransactions(TransactionFilter filter, Jwt jwt) {
+        OAuthUser user = oAuthUserService.findUserByJwt(jwt);
+        Specification<Transaction> specification = withUserInTransaction(user);
+        if (filter != null) {
+            specification = specification.and(fromTransactionFilter(filter));
+        }
+        return this.transactionRepository.findAll(specification);
     }
 
     @Override

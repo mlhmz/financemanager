@@ -1,0 +1,40 @@
+scalar LocalDateTime
+scalar UUID
+
+type Transaction {
+    uuid: UUID
+    title: String
+    description: String
+    amount: Float
+    timestamp: LocalDateTime
+    category: Category
+    sheet: Sheet
+}
+
+type Category {
+    uuid: UUID
+    title: String
+    description: String
+    createdAt: LocalDateTime
+    updatedAt: LocalDateTime
+}
+
+type Sheet {
+    uuid: UUID
+    title: String
+    createdAt: LocalDateTime
+    updatedAt: LocalDateTime
+}
+
+input TransactionFilter {
+    sheetId: UUID
+    categoryId: UUID
+}
+
+schema {
+    query: Query
+}
+
+type Query {
+    findAllTransactions(filter: TransactionFilter): [Transaction]
+}
