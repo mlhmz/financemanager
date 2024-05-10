@@ -30,7 +30,16 @@ input TransactionFilter {
     categoryId: ID
 }
 
-input TransactionMutation {
+input TransactionCreateMutation {
+    title: String! @constraint(minLength: 1)
+    description: String! @constraint(minLength: 1)
+    amount: Float!
+    timestamp: LocalDateTime!
+    sheetId: ID!
+    categoryId: ID!
+}
+
+input TransactionUpdateMutation {
     title: String
     description: String
     amount: Float
@@ -60,9 +69,28 @@ type Query {
 }
 
 type Mutation {
-    createTransaction(payload: TransactionMutation!): Transaction
-    updateTransactionByUUID(uuid: ID!, payload: TransactionMutation!): Transaction
+    createTransaction(payload: TransactionCreateMutation!): Transaction
+    updateTransactionByUUID(uuid: ID!, payload: TransactionUpdateMutation!): Transaction
     updateTransactionCategory(payload: TransactionCategoryUpdate!): Transaction
     moveTransactionToSheet(payload: MoveTransactionToSheetUpdate!): Transaction
     deleteTransactionByUUID(uuid: ID!): Boolean
 }
+
+directive @constraint(
+    # String constraints
+    minLength: Int
+    maxLength: Int
+    startsWith: String
+    endsWith: String
+    contains: String
+    notContains: String
+    pattern: String
+    format: String
+    # Number constraints
+    min: Float
+    max: Float
+    exclusiveMin: Float
+    exclusiveMax: Float
+    multipleOf: Float
+    uniqueTypeName: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION

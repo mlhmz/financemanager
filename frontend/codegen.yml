@@ -1,0 +1,32 @@
+schema: "../src/main/resources/graphql/schema.graphqls"
+documents:
+  - "src/**/*.tsx"
+ignoreNoDocuments: true
+generates:
+  "./src/gql/":
+    preset: client
+    config:
+      scalars:
+        LocalDateTime: Date
+  "./src/graphql.ts":
+    plugins:
+      - typescript
+      - typescript-validation-schema
+    config:
+      schema: zod
+      strictScalars: true
+      scalars:
+        ID: string
+        LocalDateTime: Date
+      directives:
+        constraint:
+          minLength:
+            - 'min'
+            - '$1'
+            - 'Please input more than $1'
+          maxLength:
+            - 'max'
+            - '$1'
+            - 'Please input less than $1'
+      scalarSchemas:
+        LocalDateTime: z.date()

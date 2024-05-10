@@ -17,6 +17,7 @@
 		"daisyui": "^4.10.1",
 		"dayjs": "^1.11.10",
 		"graphql": "^16.8.1",
+		"graphql-codegen-typescript-validation-schema": "^0.14.1",
 		"graphql-request": "^7.0.0",
 		"lucide-react": "^0.368.0",
 		"oidc-client-ts": "^3.0.1",

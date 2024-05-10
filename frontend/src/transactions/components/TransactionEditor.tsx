@@ -1,10 +1,14 @@
 import { Dispatch } from "react";
 import { CategorySuggestion } from "../../categories/components/CategorySuggestion";
+import { Transaction } from "../../gql/graphql.ts";
+import {
+	TransactionCreateMutation,
+	TransactionCreateMutationSchema,
+} from "../../graphql.ts";
 import { useZodForm } from "../../hooks/use-zod-form";
-import { MutateTransaction, Transaction } from "../Transaction";
 
 interface TransactionEditorProps {
-	onSubmit: Dispatch<MutateTransaction>;
+	onSubmit: Dispatch<TransactionCreateMutation>;
 	sheetId?: string;
 	initialData?: Transaction;
 }
@@ -15,14 +19,16 @@ export const TransactionEditor = ({
 	initialData,
 }: TransactionEditorProps) => {
 	const { register, handleSubmit, formState, setValue } = useZodForm({
-		schema: MutateTransaction,
+		schema: TransactionCreateMutationSchema(),
 		defaultValues: {
-			title: initialData?.title,
-			description: initialData?.description,
-			amount: initialData?.amount,
+			title: initialData?.title ?? undefined,
+			description: initialData?.description ?? undefined,
+			amount: initialData?.amount ?? undefined,
 			sheetId: sheetId,
 		},
 	});
+
+	console.log(formState);
 
 	return (
 		<div className="container m-auto flex flex-col gap-5 items-center">
