@@ -10,6 +10,6 @@ public record QueryTransactionDto (
         Double amount,
         LocalDateTime timestamp,
         QueryCategoryDto category,
-        QueryTransactionSheetDto sheet
+        QuerySheetDto sheet
 ) {
 }

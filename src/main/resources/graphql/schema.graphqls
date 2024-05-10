@@ -1,8 +1,7 @@
 scalar LocalDateTime
-scalar UUID
 
 type Transaction {
-    uuid: UUID
+    uuid: ID
     title: String
     description: String
     amount: Float
@@ -12,7 +11,7 @@ type Transaction {
 }
 
 type Category {
-    uuid: UUID
+    uuid: ID
     title: String
     description: String
     createdAt: LocalDateTime
@@ -20,15 +19,15 @@ type Category {
 }
 
 type Sheet {
-    uuid: UUID
+    uuid: ID
     title: String
     createdAt: LocalDateTime
     updatedAt: LocalDateTime
 }
 
 input TransactionFilter {
-    sheetId: UUID
-    categoryId: UUID
+    sheetId: ID
+    categoryId: ID
 }
 
 schema {

@@ -12,8 +12,6 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface TransactionMapper {
-    @Mapping(source = "sheet.uuid", target = "sheet.uuid")
-    @Mapping(source = "sheet.title", target = "sheet.title")
     QueryTransactionDto mapTransactionToQueryTransactionDto(Transaction transaction);
 
     default List<QueryTransactionDto> mapTransactionListToQueryTransactionDtoList(List<Transaction> transactions) {
