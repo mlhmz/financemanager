@@ -1,14 +1,16 @@
 package xyz.mlhmz.financemanager.controller;
 
-import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
-import xyz.mlhmz.financemanager.dtos.*;
+import org.springframework.web.bind.annotation.RestController;
+import xyz.mlhmz.financemanager.dtos.MoveTransactionToSheetDto;
+import xyz.mlhmz.financemanager.dtos.MutateTransactionDto;
+import xyz.mlhmz.financemanager.dtos.QueryTransactionDto;
+import xyz.mlhmz.financemanager.dtos.UpdateTransactionCategoryDto;
 import xyz.mlhmz.financemanager.entities.Transaction;
 import xyz.mlhmz.financemanager.filter.TransactionFilterInput;
 import xyz.mlhmz.financemanager.mappers.TransactionMapper;
@@ -18,20 +20,19 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/transactions")
 @AllArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
     private final TransactionMapper transactionMapper;
 
-    @PostMapping
-    public QueryTransactionDto createTransaction(@RequestBody MutateTransactionDto mutateTransactionDto,
+    @MutationMapping
+    public QueryTransactionDto createTransaction(@Argument MutateTransactionDto payload,
                                                  @AuthenticationPrincipal Jwt jwt) {
-        Transaction input = this.transactionMapper.mapMutateTransactionDtoToTransaction(mutateTransactionDto);
+        Transaction input = this.transactionMapper.mapMutateTransactionDtoToTransaction(payload);
         Transaction transaction = this.transactionService.createTransaction(
                 input,
-                mutateTransactionDto.sheetId(),
-                mutateTransactionDto.categoryId(),
+                payload.sheetId(),
+                payload.categoryId(),
                 jwt
         );
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
@@ -46,80 +47,53 @@ public class TransactionController {
         return this.transactionMapper.mapTransactionListToQueryTransactionDtoList(transactions);
     }
 
-    /**
-     * Replaced with GraphQL Query Mapping {@link #findAllTransactions(TransactionFilterInput, Jwt)}
-     */
-    @Deprecated
-    @GetMapping
-    public List<QueryTransactionDto> getAllTransactions(
-            @RequestParam(name = "categoryUuid", required = false) String categoryUuid,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        List<Transaction> transactions;
-        if (StringUtils.isNotEmpty(categoryUuid)) {
-            transactions = this.transactionService.findTransactionsByCategoryUUID(UUID.fromString(categoryUuid), jwt);
-        } else {
-            transactions = this.transactionService.findAllTransactions(jwt);
-        }
-        return this.transactionMapper.mapTransactionListToQueryTransactionDtoList(transactions);
-    }
-
-    @GetMapping("/{uuid}")
-    public QueryTransactionDto findTransactionByUUID(@PathVariable UUID uuid, @AuthenticationPrincipal Jwt jwt) {
+    @QueryMapping
+    public QueryTransactionDto findTransactionByUUID(@Argument UUID uuid, @AuthenticationPrincipal Jwt jwt) {
         Transaction transaction = this.transactionService.findTransactionByUUID(uuid, jwt);
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
     }
 
-    @GetMapping("/sheet/{uuid}")
-    public List<QueryTransactionDto> findTransactionsBySheetUUID(
-            @PathVariable UUID uuid,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        List<Transaction> transactions = this.transactionService.findTransactionsBySheet(uuid, jwt);
-        return this.transactionMapper.mapTransactionListToQueryTransactionDtoList(transactions);
-    }
-
-    @PutMapping("/{uuid}")
+    @MutationMapping
     public QueryTransactionDto updateTransactionByUUID(
-            @PathVariable UUID uuid,
-            @RequestBody MutateTransactionDto mutateTransactionDto,
+            @Argument UUID uuid,
+            @Argument MutateTransactionDto payload,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        Transaction input = this.transactionMapper.mapMutateTransactionDtoToTransaction(mutateTransactionDto);
+        Transaction input = this.transactionMapper.mapMutateTransactionDtoToTransaction(payload);
         Transaction transaction = this.transactionService.updateTransaction(uuid, input, jwt);
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
     }
 
-    @PatchMapping("/category")
+    @MutationMapping
     public QueryTransactionDto updateTransactionCategory(
-            @RequestBody UpdateTransactionCategoryDto updateTransactionCategoryDto,
+            @Argument UpdateTransactionCategoryDto payload,
             @AuthenticationPrincipal Jwt jwt
             ) {
         Transaction transaction = this.transactionService.updateTransactionCategory(
-                updateTransactionCategoryDto.transactionUuid(),
-                updateTransactionCategoryDto.categoryUuid(),
+                payload.transactionUuid(),
+                payload.categoryUuid(),
                 jwt
         );
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
     }
 
-    @PatchMapping("/sheet")
+    @MutationMapping
     public QueryTransactionDto moveTransactionToSheet(
-            @RequestBody MoveTransactionToSheetDto moveTransactionToSheetDto,
+            @Argument MoveTransactionToSheetDto payload,
             @AuthenticationPrincipal Jwt jwt
     ) {
         Transaction transaction = this.transactionService.moveTransactionToSheet(
-                moveTransactionToSheetDto.transactionUuid(), moveTransactionToSheetDto.sheetUuid(), jwt
+                payload.transactionUuid(), payload.sheetUuid(), jwt
         );
         return this.transactionMapper.mapTransactionToQueryTransactionDto(transaction);
     }
 
-    @DeleteMapping("/{uuid}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTransactionByUUID(
-            @PathVariable UUID uuid,
+    @MutationMapping
+    public boolean deleteTransactionByUUID(
+            @Argument UUID uuid,
             @AuthenticationPrincipal Jwt jwt
     ) {
         this.transactionService.deleteTransactionByUuid(uuid, jwt);
+        return true;
     }
 }

@@ -30,10 +30,39 @@ input TransactionFilter {
     categoryId: ID
 }
 
+input TransactionMutation {
+    title: String
+    description: String
+    amount: Float
+    timestamp: LocalDateTime
+    sheetId: ID
+    categoryId: ID
+}
+
+input TransactionCategoryUpdate {
+    transactionUuid: ID
+    categoryUuid: ID
+}
+
+input MoveTransactionToSheetUpdate {
+    transactionUuid: ID
+    sheetUuid: ID
+}
+
 schema {
     query: Query
+    mutation: Mutation
 }
 
 type Query {
     findAllTransactions(filter: TransactionFilter): [Transaction]
+    findTransactionByUUID(uuid: ID!): Transaction
+}
+
+type Mutation {
+    createTransaction(payload: TransactionMutation!): Transaction
+    updateTransactionByUUID(uuid: ID!, payload: TransactionMutation!): Transaction
+    updateTransactionCategory(payload: TransactionCategoryUpdate!): Transaction
+    moveTransactionToSheet(payload: MoveTransactionToSheetUpdate!): Transaction
+    deleteTransactionByUUID(uuid: ID!): Boolean
 }
