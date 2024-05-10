@@ -22,7 +22,7 @@ public interface TransactionMapper {
 
     Transaction mapMutateTransactionDtoToTransaction(MutateTransactionDto mutateTransactionDto);
 
-    @BeanMapping(ignoreByDefault = true)
+    @BeanMapping(ignoreByDefault = true, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "title")
     @Mapping(target = "description")
     @Mapping(target = "amount")
