@@ -99,7 +99,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction updateTransaction(UUID uuid, Transaction updateTransaction, Jwt jwt) {
         Transaction existingTransaction = this.findTransactionByUUID(uuid, jwt);
         this.transactionMapper.updateTransaction(existingTransaction, updateTransaction);
-        return existingTransaction;
+        return this.transactionRepository.save(existingTransaction);
     }
 
     @Override
