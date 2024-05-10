@@ -1,10 +1,10 @@
 import { CurrencyCell } from "../../components/CurrencyCell.tsx";
-import type { SheetStats } from "../../sheets/Sheet.ts";
+import { Maybe, SheetStats } from "../../gql/graphql.ts";
 
 export const SheetStatsInstruments = ({
 	stats,
 	isLoading,
-}: { stats?: SheetStats; isLoading: boolean }) => {
+}: { stats?: Maybe<SheetStats>; isLoading: boolean }) => {
 	if (isLoading) {
 		return <>is loading</>;
 	}

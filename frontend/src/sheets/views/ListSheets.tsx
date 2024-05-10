@@ -7,24 +7,18 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useMemo, useState } from "react";
-import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Icons } from "../../components/Icons";
 import { TanstackTable } from "../../components/TanstackTable";
-import type { Sheet } from "../Sheet";
-import { useQuerySheets } from "../hooks/use-query-sheets.tsx";
+import { Sheet } from "../../gql/graphql.ts";
 import { useMutateDeleteSheet } from "../hooks/use-mutate-delete-sheet.tsx";
+import { useQuerySheets } from "../hooks/use-query-sheets.tsx";
 
 export const ListSheets = () => {
 	dayjs.extend(relativeTime);
-	const auth = useAuth();
-	const { data, isLoading } = useQuerySheets({
-		token: auth.user?.access_token,
-	});
-	const { mutateAsync: mutateDeleteAsync } = useMutateDeleteSheet({
-		token: auth.user?.access_token,
-	});
+	const { data, isLoading } = useQuerySheets();
+	const { mutateAsync: mutateDeleteAsync } = useMutateDeleteSheet();
 	const [rowSelection, setRowSelection] = useState({});
 	const helper = createColumnHelper<Sheet>();
 	const columns = useMemo(
@@ -99,7 +93,7 @@ export const ListSheets = () => {
 				uuid: false,
 			},
 		},
-		data: data ?? [],
+		data: (data?.findAllSheets as Sheet[]) ?? [],
 		state: {
 			rowSelection,
 		},
@@ -129,7 +123,9 @@ export const ListSheets = () => {
 
 		const promises = table
 			.getSelectedRowModel()
-			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
+			.rows.map(
+				({ original }) => original.uuid && mutateDeleteAsync(original.uuid),
+			);
 		toast.promise(Promise.all(promises), {
 			loading: `Deleting ${table.getSelectedRowModel().rows.length} sheets...`,
 			success: (responses) => {

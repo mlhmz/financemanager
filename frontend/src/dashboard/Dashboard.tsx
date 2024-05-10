@@ -1,15 +1,13 @@
 import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { CardSkeletons } from "../components/CardSkeletons.tsx";
-import { useQuerySheets } from "../sheets/hooks/use-query-sheets.tsx";
 import { Icons } from "../components/Icons.tsx";
+import { useQuerySheets } from "../sheets/hooks/use-query-sheets.tsx";
 import { SheetCard } from "./components/SheetCard.tsx";
 
 export const Dashboard = () => {
 	const auth = useAuth();
-	const { data, isLoading } = useQuerySheets({
-		token: auth.user?.access_token,
-	});
+	const { data, isLoading } = useQuerySheets();
 
 	return (
 		<div className="container m-auto">
@@ -45,7 +43,7 @@ export const Dashboard = () => {
 						{isLoading ? (
 							<CardSkeletons amount={13} />
 						) : (
-							data?.map((sheet) => <SheetCard sheet={sheet} />)
+							data?.findAllSheets?.map((sheet) => <SheetCard sheet={sheet} />)
 						)}
 					</div>
 				</div>

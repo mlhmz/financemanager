@@ -17,7 +17,7 @@ import { useMutateDeleteTransaction } from "../hooks/use-mutate-delete-transacti
 
 interface TransactionListProps {
 	isLoading: boolean;
-	transactions?: Transaction[];
+	transactions?: Array<Transaction>;
 	sheet?: Sheet;
 }
 

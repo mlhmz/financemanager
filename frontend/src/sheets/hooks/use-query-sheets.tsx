@@ -1,30 +1,23 @@
-import { Sheet } from "../Sheet.ts";
 import { useQuery } from "@tanstack/react-query";
+import { graphql } from "../../gql";
+import { useAuthGraphQlClient } from "../../hooks/use-auth-graph-ql-client.tsx";
 
-async function fetchSheets(token: string | undefined) {
-	const response = await fetch("/api/v1/sheets", {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
-	} else if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
+const findAllSheets = graphql(`
+	query findAllSheets {
+		findAllSheets {
+			uuid
+			title
+			createdAt
+			updatedAt
+		}
 	}
+`);
 
-	const data = await response.json();
-	return data as Sheet[];
-}
-
-export const useQuerySheets = ({ token }: { token?: string }) => {
+export const useQuerySheets = () => {
+	const { client } = useAuthGraphQlClient();
 	const { data, isLoading } = useQuery({
 		queryKey: ["sheets"],
-		queryFn: () => fetchSheets(token),
-		enabled: !!token,
+		queryFn: () => client.request(findAllSheets),
 	});
 
 	return { data, isLoading };

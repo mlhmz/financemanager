@@ -25,6 +25,10 @@ type Sheet {
     updatedAt: LocalDateTime
 }
 
+type SheetStats {
+    sum: Float
+}
+
 input TransactionFilter {
     sheetId: ID
     categoryId: ID

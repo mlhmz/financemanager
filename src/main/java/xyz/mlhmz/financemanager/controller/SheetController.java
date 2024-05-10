@@ -1,6 +1,9 @@
 package xyz.mlhmz.financemanager.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -16,51 +19,50 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/sheets")
 @AllArgsConstructor
 public class SheetController {
     private final SheetService sheetService;
     private final SheetMapper sheetMapper;
 
-    @PostMapping
-    public QuerySheetDto createSheet(@RequestBody MutateSheetDto mutateSheetDto, @AuthenticationPrincipal Jwt jwt) {
-        Sheet sheet = this.sheetMapper.mapMutateSheetDtoToSheet(mutateSheetDto);
+    @MutationMapping
+    public QuerySheetDto createSheet(@Argument MutateSheetDto payload, @AuthenticationPrincipal Jwt jwt) {
+        Sheet sheet = this.sheetMapper.mapMutateSheetDtoToSheet(payload);
         return this.sheetMapper.mapSheetToQuerySheetDto(
                 this.sheetService.createSheet(sheet, jwt)
         );
     }
 
-    @GetMapping
-    public List<QuerySheetDto> getAllSheets(@AuthenticationPrincipal Jwt jwt) {
+    @QueryMapping
+    public List<QuerySheetDto> findAllSheets(@AuthenticationPrincipal Jwt jwt) {
         return this.sheetMapper.mapSheetListToQuerySheetDtoList(
                 this.sheetService.findAllSheets(jwt)
         );
     }
 
-    @GetMapping("/{uuid}/stats")
-    public SheetStatsDto calculateSheetStats(@PathVariable UUID uuid, @AuthenticationPrincipal Jwt jwt) {
+    @QueryMapping
+    public SheetStatsDto calculateSheetStats(@Argument UUID uuid, @AuthenticationPrincipal Jwt jwt) {
         return new SheetStatsDto(this.sheetService.sumSheetTransactionsByUuidAndUser(uuid, jwt));
     }
 
-    @GetMapping("/{uuid}")
-    public QuerySheetDto getSheetByUuid(@PathVariable UUID uuid, @AuthenticationPrincipal Jwt jwt) {
+    @QueryMapping
+    public QuerySheetDto findSheetByUuid(@Argument UUID uuid, @AuthenticationPrincipal Jwt jwt) {
         Sheet sheet = this.sheetService.findSheetByUUID(uuid, jwt);
         return this.sheetMapper.mapSheetToQuerySheetDto(sheet);
     }
 
-    @PutMapping("/{uuid}")
-    public QuerySheetDto updateSheetByUuid(@PathVariable UUID uuid,
-                                           @RequestBody MutateSheetDto mutateSheetDto,
+    @MutationMapping
+    public QuerySheetDto updateSheetByUuid(@Argument UUID uuid,
+                                           @Argument MutateSheetDto payload,
                                            @AuthenticationPrincipal Jwt jwt) {
-        Sheet sheet = this.sheetMapper.mapMutateSheetDtoToSheet(mutateSheetDto);
+        Sheet sheet = this.sheetMapper.mapMutateSheetDtoToSheet(payload);
         return this.sheetMapper.mapSheetToQuerySheetDto(
                 this.sheetService.updateSheet(uuid, sheet, jwt)
         );
     }
 
-    @DeleteMapping("/{uuid}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteSheetByUuid(@PathVariable UUID uuid, @AuthenticationPrincipal Jwt jwt) {
+    @MutationMapping
+    public boolean deleteSheetByUuid(@Argument UUID uuid, @AuthenticationPrincipal Jwt jwt) {
         this.sheetService.deleteSheetByUUID(uuid, jwt);
+        return true;
     }
 }

@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { useAuth } from "react-oidc-context";
-import { TransactionMutation } from "../../gql/graphql.ts";
+import { TransactionCreateMutation } from "../../gql/graphql.ts";
 import { Category } from "../Category";
 import { useQueryCategories } from "../hooks/use-query-categories";
 
@@ -9,8 +9,8 @@ export const CategorySuggestion = ({
 	register,
 	setValue,
 }: {
-	register: UseFormRegister<TransactionMutation>;
-	setValue: UseFormSetValue<TransactionMutation>;
+	register: UseFormRegister<TransactionCreateMutation>;
+	setValue: UseFormSetValue<TransactionCreateMutation>;
 }) => {
 	const { user } = useAuth();
 	const { data } = useQueryCategories({ token: user?.access_token });

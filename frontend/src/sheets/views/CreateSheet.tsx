@@ -1,55 +1,43 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import type { MutateSheet, Sheet } from "../Sheet";
+import { graphql } from "../../gql";
+import { SheetCreateMutation } from "../../gql/graphql.ts";
+import { useAuthGraphQlClient } from "../../hooks/use-auth-graph-ql-client.tsx";
 import { SheetEditor } from "../components/SheetEditor";
 
-async function createSheet(input: MutateSheet, token?: string): Promise<Sheet> {
-	const response = await fetch("/api/v1/sheets", {
-		headers: {
-			Authorization: `Bearer ${token ?? ""}`,
-			"Content-Type": "application/json",
-		},
-		method: "POST",
-		body: JSON.stringify(input),
-	});
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
+const createSheet = graphql(`
+	mutation createSheet($payload: SheetCreateMutation!) {
+		createSheet(payload: $payload) {
+			title
+		}
 	}
-	if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
-	}
-
-	const data = await response.json();
-	return data as Sheet;
-}
+`);
 
 export const CreateSheet = () => {
 	const queryClient = useQueryClient();
-	const auth = useAuth();
 	const navigate = useNavigate();
+	const { client } = useAuthGraphQlClient();
 	const { mutate } = useMutation({
-		mutationFn: (data: MutateSheet) => {
-			return createSheet(data, auth.user?.access_token);
+		mutationFn: (data: SheetCreateMutation) => {
+			return client.request(createSheet, {
+				payload: data,
+			});
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey: ["sheets"] }),
 	});
 
-	const onSubmit = (formData: MutateSheet) => {
+	const onSubmit = (formData: SheetCreateMutation) => {
 		mutate(
 			{ ...formData },
 			{
 				onSuccess: (data) => {
 					toast.success(
-						`The sheet named '${data.title}' was successfully created.`,
+						`The sheet named '${data.createSheet?.title}' was successfully created.`,
 					);
 					navigate("/app/sheets");
 				},
-				onError: (error) =>
-					error instanceof Error && toast.error(error.message),
+				onError: (error) => toast.error(error.message),
 			},
 		);
 	};

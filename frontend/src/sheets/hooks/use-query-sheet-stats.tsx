@@ -1,34 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { SheetStats } from "../Sheet";
+import { graphql } from "../../gql";
+import { useAuthGraphQlClient } from "../../hooks/use-auth-graph-ql-client.tsx";
 
-async function fetchSheetStats(uuid?: string, token?: string) {
-	const response = await fetch(`/api/v1/sheets/${uuid}/stats`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
+const calculateSheetStats = graphql(`
+	query calculateSheetStats($uuid: ID!) {
+		calculateSheetStats(uuid: $uuid) {
+			sum
+		}
 	}
+`);
 
-	if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
-	}
-
-	const data = await response.json();
-	return data as SheetStats;
-}
-
-export const useQuerySheetStats = ({
-	sheetId,
-	token,
-}: { sheetId?: string; token?: string }) => {
+export const useQuerySheetStats = ({ sheetId }: { sheetId?: string }) => {
+	const { client } = useAuthGraphQlClient();
 	const { data, isLoading } = useQuery({
 		queryKey: ["sheet", sheetId, "stats"],
-		queryFn: () => fetchSheetStats(sheetId, token),
+		queryFn: () =>
+			client.request(calculateSheetStats, {
+				uuid: sheetId ?? "",
+			}),
+		enabled: !!sheetId,
 	});
 
 	return { data, isLoading };

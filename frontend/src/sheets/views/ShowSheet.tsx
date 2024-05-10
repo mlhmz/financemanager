@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useAuth } from "react-oidc-context";
 import { useParams } from "react-router-dom";
 import { graphql } from "../../gql";
 import { Transaction } from "../../gql/graphql.ts";
@@ -37,7 +36,6 @@ const findAllTransactionsBySheet = graphql(`
 export const ShowSheet = () => {
 	const { sheetId } = useParams();
 	const { client } = useAuthGraphQlClient();
-	const auth = useAuth();
 	const { data, isLoading } = useQuery({
 		queryKey: ["transactions", sheetId],
 		queryFn: () =>
@@ -49,7 +47,7 @@ export const ShowSheet = () => {
 		retry: 0,
 	});
 	const { data: sheetStats, isLoading: isSheetStatsLoading } =
-		useQuerySheetStats({ sheetId: sheetId, token: auth.user?.access_token });
+		useQuerySheetStats({ sheetId: sheetId });
 	const sheet = useMemo(() => {
 		if (data?.findAllTransactions) {
 			return data.findAllTransactions[0]?.sheet;
@@ -61,11 +59,11 @@ export const ShowSheet = () => {
 			<h1 className="text-3xl">Transactions</h1>
 			<h2 className="text-xl">{sheet?.title}</h2>
 			<SheetStatsInstruments
-				stats={sheetStats}
+				stats={sheetStats?.calculateSheetStats}
 				isLoading={isSheetStatsLoading}
 			/>
 			<TransactionList
-				transactions={data?.findAllTransactions as Transaction[]}
+				transactions={data?.findAllTransactions as Array<Transaction>}
 				isLoading={isLoading}
 				sheet={sheet ?? undefined}
 			/>
