@@ -62,6 +62,24 @@ input MoveTransactionToSheetUpdate {
     sheetUuid: ID
 }
 
+input CategoryCreateMutation {
+    title: String! @constraint(minLength: 1)
+    description: String
+}
+
+input CategoryUpdateMutation {
+    title: String
+    description: String
+}
+
+input SheetCreateMutation {
+    title: String! @constraint(minLength: 1)
+}
+
+input SheetUpdateMutation {
+    title: String
+}
+
 schema {
     query: Query
     mutation: Mutation
@@ -70,6 +88,13 @@ schema {
 type Query {
     findAllTransactions(filter: TransactionFilter): [Transaction]
     findTransactionByUUID(uuid: ID!): Transaction
+
+    findAllCategories: [Category]
+    findCategoryByUuid(uuid: ID!): Category
+
+    findAllSheets: [Sheet]
+    findSheetByUuid(uuid: ID!): Sheet
+    calculateSheetStats(uuid: ID!): SheetStats
 }
 
 type Mutation {
@@ -78,6 +103,14 @@ type Mutation {
     updateTransactionCategory(payload: TransactionCategoryUpdate!): Transaction
     moveTransactionToSheet(payload: MoveTransactionToSheetUpdate!): Transaction
     deleteTransactionByUUID(uuid: ID!): Boolean
+
+    createCategory(payload: CategoryCreateMutation!): Category
+    updateCategory(uuid: ID!, payload: CategoryUpdateMutation!): Category
+    deleteCategoryByUuid(uuid: ID!): Boolean
+
+    createSheet(payload: SheetCreateMutation!): Sheet
+    updateSheetByUuid(uuid: ID!, payload: SheetUpdateMutation): SheetStats
+    deleteSheetByUuid(uuid: ID!): Boolean
 }
 
 directive @constraint(

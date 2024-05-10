@@ -1,38 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-	createColumnHelper,
-	getCoreRowModel,
-	useReactTable,
-} from "@tanstack/react-table";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {createColumnHelper, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useMemo, useState } from "react";
-import { useAuth } from "react-oidc-context";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
-import { Icons } from "../../components/Icons";
-import { TanstackTable } from "../../components/TanstackTable";
-import type { Category } from "../Category";
-
-async function fetchCategories(token: string | undefined) {
-	const response = await fetch("/api/v1/categories", {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
-	}
-	if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
-	}
-
-	const data = await response.json();
-	return data as Category[];
-}
+import {useMemo, useState} from "react";
+import {useAuth} from "react-oidc-context";
+import {Link} from "react-router-dom";
+import {toast} from "sonner";
+import {Icons} from "../../components/Icons";
+import {TanstackTable} from "../../components/TanstackTable";
+import {useQueryCategories} from "../hooks/use-query-categories.tsx";
+import {Category} from "../../gql/graphql.ts";
 
 async function deleteCategory(
 	uuid?: string,
@@ -61,10 +38,7 @@ async function deleteCategory(
 export const ListCategories = () => {
 	dayjs.extend(relativeTime);
 	const auth = useAuth();
-	const { data, isLoading } = useQuery({
-		queryKey: ["categories"],
-		queryFn: () => fetchCategories(auth.user?.access_token),
-	});
+	const { data, isLoading } = useQueryCategories();
 	const { mutateAsync: mutateDeleteAsync } = useMutation({
 		mutationFn: (uuid?: string) =>
 			deleteCategory(uuid, auth.user?.access_token),
@@ -136,7 +110,7 @@ export const ListCategories = () => {
 				uuid: false,
 			},
 		},
-		data: data ?? [],
+		data: data?.findAllCategories as Category[] ?? [],
 		state: {
 			rowSelection,
 		},
@@ -156,7 +130,7 @@ export const ListCategories = () => {
 
 		const promises = table
 			.getSelectedRowModel()
-			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
+			.rows.map(({original}) => original.uuid && mutateDeleteAsync(original.uuid));
 		toast.promise(Promise.all(promises), {
 			loading: `Deleting ${
 				table.getSelectedRowModel().rows.length

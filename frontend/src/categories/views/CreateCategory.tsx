@@ -1,63 +1,50 @@
-import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {useAuth} from "react-oidc-context";
-import {useNavigate} from "react-router-dom";
-import {toast} from "sonner";
-import type {Category, MutateCategory} from "../Category";
-import {CategoryEditor} from "../components/CategoryEditor";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { CategoryEditor } from "../components/CategoryEditor";
+import { graphql } from "../../gql";
+import { useAuthGraphQlClient } from "../../hooks/use-auth-graph-ql-client.tsx";
+import { CategoryCreateMutation, CategoryCreateMutationSchema } from "../../graphql.ts";
 
-async function createCategory(
-    input: MutateCategory,
-    token?: string
-): Promise<Category> {
-    const response = await fetch("/api/v1/categories", {
-        headers: {
-            Authorization: `Bearer ${token ?? ""}`,
-            "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(input),
-    });
-
-    if (response.status === 401) {
-        throw new Error("Invalid session, please reload the window.");
+const createCategory = graphql(`
+    mutation createCategory($payload: CategoryCreateMutation!) {
+        createCategory(payload: $payload) {
+            title
+        }
     }
-
-	if (!response.ok) {
-        const error = await response.json();
-        if (error.message) throw new Error(error.message);
-        throw new Error("Problem fetching data");
-    }
-
-    const data = await response.json();
-    return data as Category;
-}
+`)
 
 export const CreateCategory = () => {
-    const queryClient = useQueryClient();
-    const auth = useAuth();
-    const navigate = useNavigate();
-    const {mutate} = useMutation({
-        mutationFn: (data: MutateCategory) => {
-            return createCategory(data, auth.user?.access_token);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const {client} = useAuthGraphQlClient();
+  const {mutate} = useMutation({
+    mutationFn: (data: CategoryCreateMutation) => {
+      return client.request(createCategory, {
+        payload: data
+      });
+    },
+    onSettled: () => queryClient.invalidateQueries({queryKey: ["categories"]}),
+  });
+
+  const onSubmit = (formData: CategoryCreateMutation) => {
+    mutate(
+      {...formData},
+      {
+        onSuccess: (data) => {
+          toast.success(
+            `The category named '${data.createCategory?.title}' was successfully created.`
+          );
+          navigate("/app/categories");
         },
-        onSettled: () => queryClient.invalidateQueries({ queryKey: ["categories"]} ),
-    });
+        onError: (error) =>
+          toast.error(error.message),
+      }
+    );
+  };
 
-    const onSubmit = (formData: MutateCategory) => {
-        mutate(
-            {...formData},
-            {
-                onSuccess: (data) => {
-                    toast.success(
-                        `The category named '${data.title}' was successfully created.`
-                    );
-                    navigate("/app/categories");
-                },
-                onError: (error) =>
-                    error instanceof Error && toast.error(error.message),
-            }
-        );
-    };
-
-    return <CategoryEditor onSubmit={onSubmit}/>;
+  return <CategoryEditor<CategoryCreateMutation>
+    title={<h1 className="text-3xl">Create a Category</h1>}
+    onSubmit={onSubmit}
+    zodSchema={CategoryCreateMutationSchema()}/>;
 };

@@ -1,83 +1,65 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "react-oidc-context";
-import { toast } from "sonner";
-import { Category, MutateCategory } from "../Category";
-import { CategoryEditor } from "../components/CategoryEditor";
+import {useNavigate, useParams} from "react-router-dom";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {toast} from "sonner";
+import {CategoryEditor} from "../components/CategoryEditor";
+import {CategoryUpdateMutation, CategoryUpdateMutationSchema} from "../../graphql.ts";
+import {graphql} from "../../gql";
+import {useAuthGraphQlClient} from "../../hooks/use-auth-graph-ql-client.tsx";
 
-async function fetchCategory(uuid?: string, token?: string) {
-  const response = await fetch(`/api/v1/categories/${uuid}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const findCategoryByUuid = graphql(`
+    query findCategoryByUuid($uuid: ID!) {
+        findCategoryByUuid(uuid: $uuid) {
+            uuid
+            title
+            description
+            createdAt
+            updatedAt
+        }
+    }
+`)
 
-  if (response.status === 401) {
-    throw new Error("Invalid session, please reload the window.");
-  } else if (!response.ok) {
-    const error = await response.json();
-    if (error.message) throw new Error(error.message);
-    throw new Error("Problem fetching data");
-  }
-
-  const data = await response.json();
-  return data as Category;
-}
-
-async function updateCategory(
-  input: MutateCategory,
-  uuid?: string,
-  token?: string
-): Promise<Category> {
-  const response = await fetch(`/api/v1/categories/${uuid}`, {
-    headers: {
-      Authorization: `Bearer ${token ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    method: "PUT",
-    body: JSON.stringify(input),
-  });
-
-  if (response.status === 401) {
-    throw new Error("Invalid session, please reload the window.");
-  } else if (!response.ok) {
-    const error = await response.json();
-    if (error.message) throw new Error(error.message);
-    throw new Error("Problem fetching data");
-  }
-
-  const data = await response.json();
-  return data as Category;
-}
+const updateCategory = graphql(`
+    mutation updateCategory($uuid: ID!, $payload: CategoryUpdateMutation!) {
+        updateCategory(uuid: $uuid, payload: $payload) {
+            title
+        }
+    }
+`)
 
 export const EditCategory = () => {
   const { categoryId } = useParams();
-  const auth = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { client } = useAuthGraphQlClient();
   const { data, isLoading } = useQuery({
     queryKey: ["categories", categoryId],
-    queryFn: () => fetchCategory(categoryId ?? "", auth.user?.access_token),
+    queryFn: () => client.request(findCategoryByUuid, {
+      uuid: categoryId ?? ""
+    }),
+    enabled: !!categoryId
   });
   const { mutate } = useMutation({
-    mutationFn: (category: MutateCategory) => {
-      return updateCategory(category, categoryId, auth.user?.access_token);
+    mutationFn: (category: CategoryUpdateMutation) => {
+      return client.request(updateCategory, {
+        uuid: data?.findCategoryByUuid?.uuid ?? "",
+        payload: category
+      })
     },
-    onSettled: () => queryClient.invalidateQueries({queryKey: ["categories"]}),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["categories"] }),
   });
 
-  const onSubmit = (formData: MutateCategory) => {
+  const onSubmit = (formData: CategoryUpdateMutation) => {
     mutate(
       { ...formData },
       {
         onSuccess: (data) => {
           toast.success(
-            `The category named '${data.title}' was successfully updated.`
+            `The category named '${data.updateCategory?.title}' was successfully updated.`
           );
           navigate("/app/categories");
         },
         onError: (error) =>
-          error instanceof Error && toast.error(error.message),
+          toast.error(error.message),
       }
     );
   };
@@ -89,8 +71,13 @@ export const EditCategory = () => {
         <h1>Loading</h1>
       </div>
     );
-  } else if (!data) {
+  } else if (!data?.findCategoryByUuid?.uuid) {
     return <h1>Not found</h1>;
   }
-  return <CategoryEditor onSubmit={onSubmit} initialData={data} />;
+  return <CategoryEditor<CategoryUpdateMutation>
+    title={<h1 className="text-3xl">Update a category</h1>}
+    onSubmit={onSubmit}
+    initialData={data.findCategoryByUuid}
+    zodSchema={CategoryUpdateMutationSchema()}
+  />;
 };

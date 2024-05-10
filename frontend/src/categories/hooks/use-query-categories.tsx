@@ -1,30 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { Category } from "../Category";
+import { graphql } from "../../gql";
+import { useAuthGraphQlClient } from "../../hooks/use-auth-graph-ql-client.tsx";
 
-async function fetchCategories(token: string | undefined) {
-	const response = await fetch("/api/v1/categories", {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
+const findAllCategories = graphql(`
+	query findAllCategories {
+		findAllCategories {
+			uuid
+			title
+			description
+			createdAt
+			updatedAt
+		}
 	}
-	if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
-	}
+`);
 
-	const data = await response.json();
-	return data as Category[];
-}
-
-export const useQueryCategories = ({ token }: { token?: string }) => {
+export const useQueryCategories = () => {
+	const { client } = useAuthGraphQlClient();
 	const { data, isLoading } = useQuery({
 		queryKey: ["categories"],
-		queryFn: () => fetchCategories(token),
+		queryFn: () => client.request(findAllCategories),
 	});
 
 	return { data, isLoading };
