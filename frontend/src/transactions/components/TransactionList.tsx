@@ -7,7 +7,6 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useMemo, useState } from "react";
-import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { CurrencyCell } from "../../components/CurrencyCell";
@@ -28,10 +27,7 @@ export const TransactionList = ({
 	sheet,
 }: TransactionListProps) => {
 	dayjs.extend(relativeTime);
-	const { user } = useAuth();
-	const { mutateAsync: mutateDeleteAsync } = useMutateDeleteTransaction({
-		token: user?.access_token,
-	});
+	const { mutateAsync: mutateDeleteAsync } = useMutateDeleteTransaction();
 	const [rowSelection, setRowSelection] = useState({});
 	const helper = createColumnHelper<Transaction>();
 	const columns = useMemo(
@@ -114,8 +110,9 @@ export const TransactionList = ({
 	};
 
 	const resetTable = () => {
-		queryClient.invalidateQueries({ queryKey: ["sheet"] });
-		setRowSelection({});
+		queryClient
+			.invalidateQueries({ queryKey: ["transactions"] })
+			.then(() => setRowSelection({}));
 	};
 
 	const deleteSelectedItems = () => {
@@ -125,7 +122,9 @@ export const TransactionList = ({
 
 		const promises = table
 			.getSelectedRowModel()
-			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid ?? undefined));
+			.rows.map(
+				({ original }) => original.uuid && mutateDeleteAsync(original.uuid),
+			);
 		toast.promise(Promise.all(promises), {
 			loading: `Deleting ${
 				table.getSelectedRowModel().rows.length
