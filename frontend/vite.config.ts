@@ -9,7 +9,7 @@ export default defineConfig({
 			"/api/v1": {
 				target: "http://localhost:8085",
 			},
-			"/graphql": {
+			"/api/graphql": {
 				target: "http://localhost:8085",
 			},
 		},
