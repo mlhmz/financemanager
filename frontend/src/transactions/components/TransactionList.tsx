@@ -7,15 +7,14 @@ import {
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useMemo, useState } from "react";
+import { useAuth } from "react-oidc-context";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { CurrencyCell } from "../../components/CurrencyCell";
 import { Icons } from "../../components/Icons";
 import { TanstackTable } from "../../components/TanstackTable";
-import type { Sheet } from "../../sheets/Sheet";
-import type { Transaction } from "../Transaction";
+import { Sheet, Transaction } from "../../gql/graphql.ts";
 import { useMutateDeleteTransaction } from "../hooks/use-mutate-delete-transaction";
-import { useAuth } from "react-oidc-context";
 
 interface TransactionListProps {
 	isLoading: boolean;
@@ -75,7 +74,7 @@ export const TransactionList = ({
 			}),
 			helper.accessor("amount", {
 				header: () => "Amount",
-				cell: (cell) => <CurrencyCell amount={cell.getValue()} />,
+				cell: (cell) => <CurrencyCell amount={cell.getValue() ?? 0} />,
 			}),
 			helper.accessor("timestamp", {
 				header: () => "Timestamp",
@@ -126,7 +125,7 @@ export const TransactionList = ({
 
 		const promises = table
 			.getSelectedRowModel()
-			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid));
+			.rows.map((entry) => mutateDeleteAsync(entry.original.uuid ?? undefined));
 		toast.promise(Promise.all(promises), {
 			loading: `Deleting ${
 				table.getSelectedRowModel().rows.length

@@ -1,68 +1,60 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { useAuth } from "react-oidc-context";
 import { useParams } from "react-router-dom";
-import type { Transaction } from "../../transactions/Transaction";
+import { graphql } from "../../gql";
+import { Transaction } from "../../gql/graphql.ts";
+import { useAuthGraphQlClient } from "../../hooks/use-auth-graph-ql-client.tsx";
 import { SheetStatsInstruments } from "../../transactions/components/SheetStatsInstruments.tsx";
 import { TransactionList } from "../../transactions/components/TransactionList";
-import type { Sheet } from "../Sheet";
 import { useQuerySheetStats } from "../hooks/use-query-sheet-stats.tsx";
 
-async function fetchSheet(uuid?: string, token?: string) {
-	const response = await fetch(`/api/v1/sheets/${uuid}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
-	}
-
-	if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
-	}
-
-	const data = await response.json();
-	return data as Sheet;
-}
-
-async function fetchTransactionsOfSheet(uuid?: string, token?: string) {
-	const response = await fetch(`/api/v1/transactions/sheet/${uuid}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-
-	if (response.status === 401) {
-		throw new Error("Invalid session, please reload the window.");
-	}
-
-	if (!response.ok) {
-		const error = await response.json();
-		if (error.message) throw new Error(error.message);
-		throw new Error("Problem fetching data");
-	}
-
-	const data = await response.json();
-	return data as Transaction[];
-}
+const findAllTransactionsBySheet = graphql(`
+    query findAllTransactionsBySheet($filter: TransactionFilter) {
+        findAllTransactions(filter: $filter) {
+            uuid
+            title
+            description
+            amount
+            timestamp
+            category {
+                uuid
+                title
+                description
+                createdAt
+                updatedAt
+            }
+            sheet {
+                uuid
+                title
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`);
 
 export const ShowSheet = () => {
 	const { sheetId } = useParams();
+	const { client } = useAuthGraphQlClient();
 	const auth = useAuth();
-	const { data: sheet } = useQuery({
-		queryKey: ["sheet", sheetId],
-		queryFn: () => fetchSheet(sheetId, auth.user?.access_token),
+	const { data, isLoading } = useQuery({
+		queryKey: ["transactions", sheetId],
+		queryFn: () =>
+			client.request(findAllTransactionsBySheet, {
+				filter: {
+					sheetId: sheetId,
+				},
+			}),
+		retry: 0,
 	});
 	const { data: sheetStats, isLoading: isSheetStatsLoading } =
 		useQuerySheetStats({ sheetId: sheetId, token: auth.user?.access_token });
-	const { data: transactions, isLoading: isTransactionsLoading } = useQuery({
-		queryKey: ["sheet", sheetId, "transactions"],
-		queryFn: () => fetchTransactionsOfSheet(sheetId, auth.user?.access_token),
-		enabled: !!sheet,
-	});
+	const sheet = useMemo(() => {
+		if (data?.findAllTransactions) {
+			return data.findAllTransactions[0]?.sheet;
+		}
+	}, [data]);
 
 	return (
 		<div className="container m-auto flex flex-col gap-5">
@@ -73,9 +65,9 @@ export const ShowSheet = () => {
 				isLoading={isSheetStatsLoading}
 			/>
 			<TransactionList
-				transactions={transactions}
-				isLoading={isTransactionsLoading}
-				sheet={sheet}
+				transactions={data?.findAllTransactions as Transaction[]}
+				isLoading={isLoading}
+				sheet={sheet ?? undefined}
 			/>
 		</div>
 	);
